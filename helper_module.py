@@ -76,7 +76,9 @@ def draw_line(img, lines):
 
 def clean_square_helper(img):
     """
-    Clean noise in every square
+    Clean noises in every square splited
+    Input: One of 81 squares
+    Output: Cleaned square and boolean var which so that there is number in it
     """
 
     if np.isclose(img, 0).sum() / (img.shape[0] * img.shape[1]) >= 0.95:

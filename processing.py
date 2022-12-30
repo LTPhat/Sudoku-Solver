@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from threshold import preprocess
-from helper_module import find_corners, draw_circle_at_corners, grid_line_helper, draw_line
+from helper_module import find_corners, draw_circle_at_corners, grid_line_helper, draw_line, clean_square_helper
 
 def find_contours(img, original):
     """
@@ -111,6 +111,20 @@ def split_squares(number_img):
 
     return square_list
 
+def clean_square(square_list):
+    """
+    Return cleaned-square list and number of digits available in the image
+    """
+    cleaned_squares = []
+    count = 0
+    for sq in square_list:
+        new_img, is_num = clean_square_helper(sq)
+        if is_num:
+            cleaned_squares.append(new_img)
+            count += 1
+        else:
+            cleaned_squares.append(0)
+    return cleaned_squares, count
 
 
 if __name__ == "__main__":

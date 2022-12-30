@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from threshold import preprocess
-from processing import find_contours, warp_image, create_grid_mask, split_squares
+from processing import find_contours, warp_image, create_grid_mask, split_squares, clean_square
 from helper_module import grid_line_helper, clean_square_helper
 import matplotlib.pyplot as plt
 
@@ -83,7 +83,8 @@ def test_split_square(number_img):
     print("Test split square success")
     return square
 
-def test_clean_square(square_list):
+#Test clean output image
+def test_clean_square_visualize(square_list):
     square_cleaned_list = []
     for i in square_list:
         clean_square, _ = clean_square_helper(i)
@@ -101,8 +102,17 @@ def test_clean_square(square_list):
     print("Test clean square success")
     return square_cleaned_list
 
+
+def test_clean_square_count(square_list):
+    cleaned_list, count = clean_square(square_list)
+    print(cleaned_list)
+    print(count)
+    print("Test clean quare count success")
+
+
 if __name__ == "__main__":
     get = test_create_grid_mask(horizontal, vertical)
     number = cv2.bitwise_and(cv2.resize(warped_processed, (600,600), cv2.INTER_AREA), get)
     square = test_split_square(number)
-    square_cleaned_list = test_clean_square(square)
+    square_cleaned_list = test_clean_square_visualize(square)
+    test_clean_square_count(square)
