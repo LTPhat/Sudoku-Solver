@@ -1,11 +1,16 @@
 import cv2
 import numpy as np
 from threshold import preprocess
-from processing import find_contours, warp_image, create_grid_mask, split_squares, clean_square
-from helper_module import grid_line_helper, clean_square_helper
+from processing import find_contours, warp_image, create_grid_mask, split_squares, clean_square, recognize_digits
+from helper_module import grid_line_helper, clean_square_helper, resize_square, classify_one_digit, normalize
 import matplotlib.pyplot as plt
+import torch 
 
-img = "Testimg\sudoku.jpg"
+
+classifier = torch.load('digit_classifier.h5',map_location ='cpu')
+classifier.eval()
+
+img = "testimg\Test2.jpg"
 img = cv2.imread(img)
 thresholded = preprocess(img)
 corners_img, corners = find_contours(thresholded, img)
@@ -110,9 +115,31 @@ def test_clean_square_count(square_list):
     print("Test clean quare count success")
 
 
+
+def test_resize_clean_square(clean_square_list):
+    resized_list = resize_square(clean_square_list)
+    for i in range(0,5):
+        print(resized_list[i].shape)
+    print("Test resize clean square success")
+    return resized_list
+
+
+def test_classify_one_digit(model, resize_list):
+    digit = classify_one_digit(model, clean_square, threshold=60)
+    print("Test classify one digit success")
+    return digit
+
+def test_recognize_digits(model, resize_list):
+    res_str = recognize_digits(model, resize_list)
+    return res_str
+
 if __name__ == "__main__":
     get = test_create_grid_mask(horizontal, vertical)
     number = cv2.bitwise_and(cv2.resize(warped_processed, (600,600), cv2.INTER_AREA), get)
     square = test_split_square(number)
     square_cleaned_list = test_clean_square_visualize(square)
     test_clean_square_count(square)
+    resized = test_resize_clean_square(square_cleaned_list)
+    resize_norm = normalize(resized)
+    res_str = test_recognize_digits(classifier, resize_norm)
+    print(res_str)

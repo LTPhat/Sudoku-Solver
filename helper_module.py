@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import operator
+import torch
+
 
 def find_corners(polygon, limit_func, compare_func):
     """
@@ -87,7 +89,7 @@ def clean_square_helper(img):
     # if there is very little white in the region around the center, this means we got an edge accidently
     height, width = img.shape
     mid = width // 2
-    if np.isclose(img[:, int(mid - width * 0.4):int(mid + width * 0.4)], 0).sum() / (2 * width * 0.4 * height) >= 0.90:
+    if np.isclose(img[:, int(mid - width * 0.38):int(mid + width * 0.38)], 0).sum() / (2 * width * 0.38 * height) >= 0.95:
         return np.zeros_like(img), False
 
     # center image
@@ -101,3 +103,45 @@ def clean_square_helper(img):
     new_img[start_y:start_y + h, start_x:start_x + w] = img[y:y + h, x:x + w]
 
     return new_img, True
+
+
+
+def resize_square(clean_square_list):
+    """
+    Resize clean squares into 28x28 in order to feed to classifier
+    """
+    resized_list = []
+    for img in clean_square_list:
+        resized = cv2.resize(img, (28,28), interpolation=cv2.INTER_AREA)
+        resized_list.append(resized)
+    return resized_list
+
+
+def classify_one_digit(model, resize_square, threshold = 60):
+    """
+    Determine whether each square has number by counting number of (not black) pixel and compare to threshold value
+    Using classifier to predict number in square
+    - Return 0 if the square is blank
+    - Return predict digit if the square has number
+    """
+
+    # Determine blank square
+
+    if (resize_square != resize_square.min()).sum() < threshold:
+        return str(0)
+    
+    model.eval()
+    # Convert to shape (1,1,28,28) to be compatible with dataloader for evaluation
+    iin = torch.Tensor(resize_square).unsqueeze(0).unsqueeze(0)
+
+    with torch.no_grad():
+        out = model(iin)
+        # Get index of predict digit
+        _, index = torch.max(out, 1)
+
+    pred_digit = index.item()
+
+    return str(pred_digit)
+
+def normalize(resized_list):
+    return [img/255 for img in resized_list]

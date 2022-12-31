@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 from threshold import preprocess
-from helper_module import find_corners, draw_circle_at_corners, grid_line_helper, draw_line, clean_square_helper
+from helper_module import find_corners, draw_circle_at_corners, grid_line_helper, draw_line
+from helper_module import clean_square_helper, classify_one_digit
 
 def find_contours(img, original):
     """
@@ -48,6 +49,7 @@ def find_contours(img, original):
     return [],[]
 
 
+
 def warp_image(corner_list, original):
     """
     Input: 4 corner points and threshold grayscale image
@@ -69,6 +71,7 @@ def warp_image(corner_list, original):
     return transformed_image, transfrom_matrix
 
 
+
 def get_grid_line(img, length = 10):
     """
     Get horizontal and vertical lines from warped image
@@ -76,6 +79,8 @@ def get_grid_line(img, length = 10):
     horizontal = grid_line_helper(img, shape_location= 1)
     vertical = grid_line_helper(img, shape_location=0)
     return vertical, horizontal
+
+
 
 def create_grid_mask(vertical, horizontal):
     """
@@ -96,6 +101,7 @@ def create_grid_mask(vertical, horizontal):
     return mask
 
 
+
 def split_squares(number_img):
     """
     Split number img into 81 squares.
@@ -110,6 +116,8 @@ def split_squares(number_img):
             square_list.append(number_img[top_left_square[1]:bot_right_square[1], top_left_square[0]: bot_right_square[0]])
 
     return square_list
+
+
 
 def clean_square(square_list):
     """
@@ -126,6 +134,12 @@ def clean_square(square_list):
             cleaned_squares.append(0)
     return cleaned_squares, count
 
+def recognize_digits(model, resized):
+    res_str = ""
+    for img in resized:
+        digit = classify_one_digit(model, img, threshold=80)
+        res_str += str(digit)
+    return res_str
 
 if __name__ == "__main__":
     img2 = "Testimg\sudoku.jpg"

@@ -11,3 +11,8 @@ def fontstyle_list(font_folder, font_name):
         for j in font_dir:
             font_list.append(j)
     return font_list
+
+if __name__ == "__main__":
+    fonts = fontstyle_list(font_folder, font_name)
+    print(fonts)
+    print(len(fonts))
