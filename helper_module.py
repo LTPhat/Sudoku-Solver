@@ -116,6 +116,15 @@ def resize_square(clean_square_list):
         resized_list.append(resized)
     return resized_list
 
+def resize_square32(clean_square_list):
+    """
+    Resize clean squares into 32x32 in order to feed to tf classifier
+    """
+    resized_list = []
+    for img in clean_square_list:
+        resized = cv2.resize(img, (32,32), interpolation=cv2.INTER_AREA)
+        resized_list.append(resized)
+    return resized_list
 
 def classify_one_digit(model, resize_square, threshold = 60):
     """
