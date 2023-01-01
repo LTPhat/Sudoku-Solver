@@ -153,4 +153,17 @@ def classify_one_digit(model, resize_square, threshold = 60):
     return str(pred_digit)
 
 def normalize(resized_list):
+    """
+    Scale pixel value for recognition
+    """
     return [img/255 for img in resized_list]
+
+
+def convert_str_to_board(string, step = 9):
+    """
+    Convert recognized string into 2D array for sudoku solving
+    """
+    board = []
+    for i in range(0, len(string), step):
+        board.append([int(char) for char in string[i:i+step]])
+    return np.array(board)
