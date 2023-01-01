@@ -2,9 +2,11 @@ import cv2
 import numpy as np
 from threshold import preprocess
 from processing import find_contours, warp_image, create_grid_mask, split_squares, clean_square, recognize_digits
-from helper_module import grid_line_helper, clean_square_helper, resize_square, classify_one_digit, normalize
+from helper_module import grid_line_helper, clean_square_helper, resize_square, classify_one_digit, normalize, convert_str_to_board
 import matplotlib.pyplot as plt
 import torch 
+from sudoku_solve import Sudoku_solver
+
 
 
 classifier = torch.load('digit_classifier.h5',map_location ='cpu')
@@ -110,7 +112,6 @@ def test_clean_square_visualize(square_list):
 
 def test_clean_square_count(square_list):
     cleaned_list, count = clean_square(square_list)
-    print(cleaned_list)
     print(count)
     print("Test clean quare count success")
 
@@ -133,7 +134,25 @@ def test_recognize_digits(model, resize_list):
     res_str = recognize_digits(model, resize_list)
     return res_str
 
+
+def test_convert_str_to_board(string):
+    board = convert_str_to_board(string)
+    print(board)
+    print(type(board))
+    print("Test convert str to board success")
+    return board
+
+def test_sudoku_solver(board):
+    sudoku = Sudoku_solver(board, 9)
+    # sudoku.print_board()
+    sudoku.solve()
+    # sudoku.print_board()
+    res_board = sudoku.board
+    print("Test sudoku solver success")
+    return res_board
+
 if __name__ == "__main__":
+    cv2.imshow("img", img)
     get = test_create_grid_mask(horizontal, vertical)
     number = cv2.bitwise_and(cv2.resize(warped_processed, (600,600), cv2.INTER_AREA), get)
     square = test_split_square(number)
@@ -142,4 +161,6 @@ if __name__ == "__main__":
     resized = test_resize_clean_square(square_cleaned_list)
     resize_norm = normalize(resized)
     res_str = test_recognize_digits(classifier, resize_norm)
-    print(res_str)
+    board = test_convert_str_to_board(res_str)
+    res_board = test_sudoku_solver(board)
+    print(res_board)
