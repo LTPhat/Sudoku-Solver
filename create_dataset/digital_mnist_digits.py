@@ -15,7 +15,7 @@ font_name = ['arial', 'bodoni','calibri','futura','heveltica','times-new-roman']
 
 fonts = fontstyle_list(font_folder, font_name)
 
-class digitalMNIST(Dataset):
+class PrintedMNIST(Dataset):
     """
     Generate digital mnist dataset for digits recognition
     """
