@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 from threshold import preprocess
-from processing import find_contours, warp_image, create_grid_mask, split_squares, clean_square, recognize_digits
-from helper_module import grid_line_helper, clean_square_helper, resize_square, classify_one_digit, normalize, convert_str_to_board
+from processing import find_contours, warp_image, create_grid_mask, split_squares, clean_square, recognize_digits, draw_digits_on_warped, unwarp_image
+from utils import grid_line_helper, clean_square_helper, resize_square, classify_one_digit, normalize, convert_str_to_board
 import matplotlib.pyplot as plt
 import torch 
 from sudoku_solve import Sudoku_solver
@@ -12,7 +12,8 @@ from sudoku_solve import Sudoku_solver
 classifier = torch.load('digit_classifier.h5',map_location ='cpu')
 classifier.eval()
 
-img = "testimg\sudoku_real_2.jpeg"
+
+img = "testimg\sudoku_real_4.jpeg"
 img = cv2.imread(img)
 thresholded = preprocess(img)
 corners_img, corners = find_contours(thresholded, img)
@@ -32,12 +33,16 @@ def test_wrap_image(thresholded):
     print(matrix)
     print("Test wrap image success")
 
+
+
 def test_threshold_img(original):
     thresholded = preprocess(original)
     cv2.imshow("img", thresholded)
     cv2.waitKey(0)
     print("Test threshold image success")
     return thresholded
+
+
 
 def test_find_contours(thresholded, original):
     original, corner_list = find_contours(thresholded, thresholded)
@@ -46,12 +51,15 @@ def test_find_contours(thresholded, original):
     print("Test find contours success")
     cv2.waitKey(0)
 
+
+
 def test_draw_contour(thresholded, original):
     contour, _ = cv2.findContours(thresholded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cv2.drawContours(original, contour, -1, (0,255,255), 3)
     original = cv2.resize(original, (600,600), interpolation= cv2.INTER_AREA)
     cv2.imshow("Draw Contour", original)
     cv2.waitKey(0)
+
 
 
 def test_get_gridline(original, length = 10):
@@ -67,6 +75,8 @@ def test_get_gridline(original, length = 10):
     cv2.waitKey(0)
     print("Test get gridline success")
 
+
+
 def test_create_grid_mask(horizontal, vertical):
     get = create_grid_mask(horizontal, vertical)
     get = cv2.resize(get, (600,600), interpolation= cv2.INTER_AREA)
@@ -74,6 +84,8 @@ def test_create_grid_mask(horizontal, vertical):
     cv2.waitKey(0)
     print("Test get gridline success")
     return get
+
+
 
 def test_split_square(number_img):
     square = split_squares(number_img)
@@ -89,6 +101,8 @@ def test_split_square(number_img):
     plt.show()
     print("Test split square success")
     return square
+
+
 
 #Test clean output image
 def test_clean_square_visualize(square_list):
@@ -110,6 +124,8 @@ def test_clean_square_visualize(square_list):
     return square_cleaned_list
 
 
+
+
 def test_clean_square_count(square_list):
     cleaned_list, count = clean_square(square_list)
     print(count)
@@ -125,31 +141,52 @@ def test_resize_clean_square(clean_square_list):
     return resized_list
 
 
+
 def test_classify_one_digit(model, resize_list):
     digit = classify_one_digit(model, clean_square, threshold=60)
     print("Test classify one digit success")
     return digit
+
+
 
 def test_recognize_digits(model, resize_list):
     res_str = recognize_digits(model, resize_list)
     return res_str
 
 
+
 def test_convert_str_to_board(string):
     board = convert_str_to_board(string)
-    print(board)
-    print(type(board))
+    # print(board)
+    # print(type(board))
     print("Test convert str to board success")
     return board
 
+
+
 def test_sudoku_solver(board):
+    unsolved_board = board.copy()
     sudoku = Sudoku_solver(board, 9)
     # sudoku.print_board()
     sudoku.solve()
     # sudoku.print_board()
     res_board = sudoku.board
     print("Test sudoku solver success")
-    return res_board
+    return res_board, unsolved_board
+
+
+
+def test_draw_digits_warped(warped_img, solved_board, unsolved_board):
+    img_text, warp_image = draw_digits_on_warped(warped_img, solved_board, unsolved_board)
+    # img_text = cv2.resize(img_text, (600,600), interpolation=cv2.INTER_AREA)
+    return img_text, warp_image
+
+
+def test_unwarp_image(img_src, img_dst, corner_list):
+    dst_img = unwarp_image(img_src, img_dst, corner_list, 0.1)
+    cv2.imshow("Res", dst_img)
+    cv2.waitKey(0)
+    return dst_img
 
 if __name__ == "__main__":
     cv2.imshow("img", img)
@@ -162,5 +199,17 @@ if __name__ == "__main__":
     resize_norm = normalize(resized)
     res_str = test_recognize_digits(classifier, resize_norm)
     board = test_convert_str_to_board(res_str)
-    res_board = test_sudoku_solver(board)
+    res_board, unsolved_board = test_sudoku_solver(board)
     print(res_board)
+    print(unsolved_board)
+    img_text, warp_image = test_draw_digits_warped(warped_processed, res_board, unsolved_board)
+    # Must note: Check error in module unwarp_image
+    dst_img = test_unwarp_image()
+
+
+    # warped_processed = cv2.resize(warped_processed, (600,600), interpolation=cv2.INTER_AREA)
+    # cv2.imshow("123",warped_processed)
+    # cv2.waitKey(0)
+    # dst_img = test_unwarp_image(img_text, img, corners)
+    # print(img_text.shape)
+    # print(img.shape)
