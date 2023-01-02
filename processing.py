@@ -1,8 +1,11 @@
 import cv2
 import numpy as np
 from threshold import preprocess
-from helper_module import find_corners, draw_circle_at_corners, grid_line_helper, draw_line
-from helper_module import clean_square_helper, classify_one_digit
+from utils import find_corners, draw_circle_at_corners, grid_line_helper, draw_line
+from utils import clean_square_helper, classify_one_digit
+
+
+
 
 def find_contours(img, original):
     """
@@ -31,7 +34,7 @@ def find_contours(img, original):
         bot_left = find_corners(polygon,limit_func=min, compare_func= np.subtract)
         bot_right = find_corners(polygon,limit_func=max, compare_func=np.add)
         #Check polygon is square, if not return []
-        #Set threshold rate for width and height
+        #Set threshold rate for width and height to determine square bounding box
         if not (0.8 < ((top_right[0]-top_left[0]) / (bot_right[1]-top_right[1]))<1.2):
             print("Exception 1 : Get another image to get square-shape puzzle")
             return [],[]
@@ -47,6 +50,7 @@ def find_contours(img, original):
         return original, corner_list
     print("Can not detect puzzle")
     return [],[]
+
 
 
 
@@ -72,6 +76,7 @@ def warp_image(corner_list, original):
 
 
 
+
 def get_grid_line(img, length = 10):
     """
     Get horizontal and vertical lines from warped image
@@ -79,6 +84,7 @@ def get_grid_line(img, length = 10):
     horizontal = grid_line_helper(img, shape_location= 1)
     vertical = grid_line_helper(img, shape_location=0)
     return vertical, horizontal
+
 
 
 
@@ -102,6 +108,7 @@ def create_grid_mask(vertical, horizontal):
 
 
 
+
 def split_squares(number_img):
     """
     Split number img into 81 squares.
@@ -116,6 +123,7 @@ def split_squares(number_img):
             square_list.append(number_img[top_left_square[1]:bot_right_square[1], top_left_square[0]: bot_right_square[0]])
 
     return square_list
+
 
 
 
@@ -134,12 +142,63 @@ def clean_square(square_list):
             cleaned_squares.append(0)
     return cleaned_squares, count
 
+
+
+
 def recognize_digits(model, resized):
     res_str = ""
     for img in resized:
         digit = classify_one_digit(model, img, threshold=80)
         res_str += str(digit)
     return res_str
+
+
+
+def draw_digits_on_warped(warped_img, solved_board, unsolved_board):
+    """
+    Function to draw digits from solved board to warped img
+    """
+    width = warped_img.shape[0] // 9
+
+    img_w_text = np.zeros_like(warped_img)
+
+
+    for j in range(9):
+        for i in range(9):
+            if unsolved_board[j][i] == 0: # Only draw new number to blank cell in warped image, avoid overlapping 
+
+                p1 = (i * width, j * width)  # Top left corner of a bounding box
+                p2 = ((i + 1) * width, (j + 1) * width)  # Bottom right corner of bounding box
+
+                # Find the center of square to draw digit
+                center = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
+                text_size, _ = cv2.getTextSize(str(solved_board[j][i]), cv2.FONT_HERSHEY_SIMPLEX, 1, 6)
+                text_origin = (center[0] - text_size[0] // 2, center[1] + text_size[1] // 2)
+
+                cv2.putText(warped_img, str(solved_board[j][i]),
+                            text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 6)
+            
+    return img_w_text, warped_img
+
+
+
+def unwarp_image(img_src, img_dest, pts, time):
+    pts = np.array(pts)
+
+    height, width = img_src.shape[0], img_src.shape[1]
+    pts_source = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, width - 1]],
+                          dtype='float32')
+
+    matrix, status = cv2.findHomography(pts_source, pts)
+    warped = cv2.warpPerspective(img_src, matrix, (img_dest.shape[1], img_dest.shape[0]))
+    cv2.fillConvexPoly(img_dest, pts, 0, 16)
+
+    dst_img = cv2.add(img_dest, warped)
+
+    dst_img_height, dst_img_width = dst_img.shape[0], dst_img.shape[1]
+    cv2.putText(dst_img, time, (dst_img_width - 250, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+
+    return dst_img
 
 if __name__ == "__main__":
     img2 = "Testimg\sudoku.jpg"
