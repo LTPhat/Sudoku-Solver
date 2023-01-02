@@ -16,7 +16,7 @@ classifier.eval()
 img = "testimg\sudoku_real_4.jpeg"
 img = cv2.imread(img)
 thresholded = preprocess(img)
-corners_img, corners = find_contours(thresholded, img)
+corners_img, corners, _ = find_contours(thresholded, img)
 warped, matrix = warp_image(corner_list=corners, original= corners_img)
 warped_processed = preprocess(warped)
 horizontal = grid_line_helper(warped_processed, shape_location =0)
@@ -177,19 +177,20 @@ def test_sudoku_solver(board):
 
 
 def test_draw_digits_warped(warped_img, solved_board, unsolved_board):
-    img_text, warp_image = draw_digits_on_warped(warped_img, solved_board, unsolved_board)
+    img_text, warped_img= draw_digits_on_warped(warped_img, solved_board, unsolved_board)
     # img_text = cv2.resize(img_text, (600,600), interpolation=cv2.INTER_AREA)
-    return img_text, warp_image
+    return img_text, warped_img
 
 
 def test_unwarp_image(img_src, img_dst, corner_list):
     dst_img = unwarp_image(img_src, img_dst, corner_list, 0.1)
-    cv2.imshow("Res", dst_img)
-    cv2.waitKey(0)
+    # cv2.imshow("Res", dst_img)
+    # cv2.waitKey(0)
     return dst_img
 
 if __name__ == "__main__":
     cv2.imshow("img", img)
+    cv2.waitKey(0)
     get = test_create_grid_mask(horizontal, vertical)
     number = cv2.bitwise_and(cv2.resize(warped_processed, (600,600), cv2.INTER_AREA), get)
     square = test_split_square(number)
@@ -202,14 +203,31 @@ if __name__ == "__main__":
     res_board, unsolved_board = test_sudoku_solver(board)
     print(res_board)
     print(unsolved_board)
-    img_text, warp_image = test_draw_digits_warped(warped_processed, res_board, unsolved_board)
-    # Must note: Check error in module unwarp_image
-    dst_img = test_unwarp_image()
+
+    _, warp_with_nums = test_draw_digits_warped(warped, res_board, unsolved_board)
+    cv2.imshow("warped", cv2.resize(warp_with_nums, (600,600), cv2.INTER_AREA))
+    cv2.waitKey(0)
+    print(warp_with_nums.shape)
+    dst_img = test_unwarp_image(warp_with_nums, img, corners)
+
+    cv2.imshow("res", cv2.resize(dst_img, (600,600), cv2.INTER_AREA))
+    cv2.waitKey(0)
+
+    ################
+    #NOTE: Consider find_contour function, upwarp_image
 
 
-    # warped_processed = cv2.resize(warped_processed, (600,600), interpolation=cv2.INTER_AREA)
-    # cv2.imshow("123",warped_processed)
-    # cv2.waitKey(0)
+    # print(warped_processed.shape)
+    # img_text = test_draw_digits_warped(warped_processed, res_board, unsolved_board)
+    # # # Must note: Check error in module unwarp_image
     # dst_img = test_unwarp_image(img_text, img, corners)
-    # print(img_text.shape)
+    # cv2.imshow("dest", dst_img)
+    # cv2.waitKey(0)
+    # cv2.imshow("Img text", img_text)
+    # cv2.waitKey(0)
+
+    # # warped_processed = cv2.resize(warped_processed, (600,600), interpolation=cv2.INTER_AREA)
+    # # cv2.imshow("123",dst_img)
+    # # cv2.waitKey(0)
+    # dst_img = test_unwarp_image(warped_processed, img, corners)
     # print(img.shape)
