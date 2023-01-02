@@ -41,13 +41,14 @@ def find_contours(img, original):
         if bot_right[1] - top_right[1] == 0:
             print("Exception 2 : Get another image to get square-shape puzzle")
             return [],[]
-        corner_list = [top_left, top_right, bot_left, bot_right]
-        cv2.drawContours(original, [polygon], 0, (255,255,0), 3)
+        corner_list = [top_left, top_right, bot_right, bot_left]
+        cv2.drawContours(original, [polygon], 0, (0,255,0), 3)
+        draw_original = original.copy()
         #draw circle at each corner point
         for x in corner_list:
-            draw_circle_at_corners(original, x)
+            draw_circle_at_corners(draw_original, x)
 
-        return original, corner_list
+        return original, corner_list, draw_original
     print("Can not detect puzzle")
     return [],[]
 
@@ -69,7 +70,7 @@ def warp_image(corner_list, original):
         np.linalg.norm(bot_right - bot_left),
         np.linalg.norm(top_left - top_right)
     ]))
-    out_ptr = np.array([[0,0],[side-1,0],[0,side-1],[side-1,side-1]],dtype="float32")
+    out_ptr = np.array([[0,0],[side-1,0],[side-1,side-1], [0,side-1]],dtype="float32")
     transfrom_matrix = cv2.getPerspectiveTransform(corners, out_ptr)
     transformed_image = cv2.warpPerspective(original, transfrom_matrix, (side, side))
     return transformed_image, transfrom_matrix
@@ -176,7 +177,7 @@ def draw_digits_on_warped(warped_img, solved_board, unsolved_board):
                 text_origin = (center[0] - text_size[0] // 2, center[1] + text_size[1] // 2)
 
                 cv2.putText(warped_img, str(solved_board[j][i]),
-                            text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 6)
+                            text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 6)
             
     return img_w_text, warped_img
 
@@ -190,13 +191,14 @@ def unwarp_image(img_src, img_dest, pts, time):
                           dtype='float32')
 
     matrix, status = cv2.findHomography(pts_source, pts)
+    # Covert to original view perspective
     warped = cv2.warpPerspective(img_src, matrix, (img_dest.shape[1], img_dest.shape[0]))
+    # Draw a black rectangle in img_dest
+
     cv2.fillConvexPoly(img_dest, pts, 0, 16)
-
     dst_img = cv2.add(img_dest, warped)
-
     dst_img_height, dst_img_width = dst_img.shape[0], dst_img.shape[1]
-    cv2.putText(dst_img, time, (dst_img_width - 250, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+    cv2.putText(dst_img, str(time), (dst_img_width - 200, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
     return dst_img
 
