@@ -4,6 +4,7 @@ import operator
 import torch
 
 
+
 def find_corners(polygon, limit_func, compare_func):
     """
     Input: Rectangle puzzle extract from contours
@@ -17,16 +18,20 @@ def find_corners(polygon, limit_func, compare_func):
     bot-left: (x-y) min
     bot-right: (x+y) max
     """
+
     index, _ = limit_func(enumerate([compare_func(ptr[0][0], ptr[0][1]) for ptr in polygon]), key = operator.itemgetter(1))
 
     return polygon[index][0][0], polygon[index][0][1]
+
 
 
 def draw_circle_at_corners(original, ptr):
     """
     Helper function to draw circle at corners
     """
+
     cv2.circle(original, ptr, 15, (0,255,0), cv2.FILLED)
+
 
 
 def grid_line_helper(img, shape_location, length = 10):
@@ -35,6 +40,7 @@ def grid_line_helper(img, shape_location, length = 10):
     Find horizontal line: shape_location = 0
     Find vertical line: shape_location = 1
     """
+
     clone_img = img.copy()
     row_or_col = clone_img.shape[shape_location]
 
@@ -53,6 +59,9 @@ def grid_line_helper(img, shape_location, length = 10):
     clone_img = cv2.dilate(clone_img, kernel)
 
     return clone_img
+
+
+
 def draw_line(img, lines):
     """
     Draw all lines in lines got from cv2.HoughLine()
@@ -74,6 +83,7 @@ def draw_line(img, lines):
         #Draw line every loop
         cv2.line(clone_img, (x1,y1), (x2,y2), (255,255,255), 4)
     return clone_img
+
 
 
 def clean_square_helper(img):
@@ -110,11 +120,14 @@ def resize_square(clean_square_list):
     """
     Resize clean squares into 28x28 in order to feed to classifier
     """
+
     resized_list = []
     for img in clean_square_list:
         resized = cv2.resize(img, (28,28), interpolation=cv2.INTER_AREA)
         resized_list.append(resized)
     return resized_list
+
+
 
 def resize_square32(clean_square_list):
     """
@@ -125,6 +138,8 @@ def resize_square32(clean_square_list):
         resized = cv2.resize(img, (32,32), interpolation=cv2.INTER_AREA)
         resized_list.append(resized)
     return resized_list
+
+
 
 def classify_one_digit(model, resize_square, threshold = 60):
     """
@@ -152,17 +167,22 @@ def classify_one_digit(model, resize_square, threshold = 60):
 
     return str(pred_digit)
 
+
+
 def normalize(resized_list):
     """
     Scale pixel value for recognition
     """
+
     return [img/255 for img in resized_list]
+
 
 
 def convert_str_to_board(string, step = 9):
     """
     Convert recognized string into 2D array for sudoku solving
     """
+    
     board = []
     for i in range(0, len(string), step):
         board.append([int(char) for char in string[i:i+step]])
