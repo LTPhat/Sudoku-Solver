@@ -32,8 +32,8 @@ def draw_circle_at_corners(original, ptr):
 def grid_line_helper(img, shape_location, length = 10):
     """
     Helper function to fine vertical, horizontal line
-    Find vertical line: shape_location = 0
-    Find horizontal line: shape_location = 1
+    Find horizontal line: shape_location = 0
+    Find vertical line: shape_location = 1
     """
     clone_img = img.copy()
     row_or_col = clone_img.shape[shape_location]
@@ -45,9 +45,9 @@ def grid_line_helper(img, shape_location, length = 10):
 
     # Define morphology kernel
     if shape_location == 0:
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,size))
-    else:
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (size,1))
+    else:
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,size))
 
     clone_img = cv2.erode(clone_img, kernel)
     clone_img = cv2.dilate(clone_img, kernel)
