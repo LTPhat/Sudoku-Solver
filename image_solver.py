@@ -9,11 +9,10 @@ from sudoku_solve import Sudoku_solver
 import matplotlib.pyplot as plt
 
 # This module performs sudoku solver which input is a image file.
-# classifier = torch.load('digit_classifier.h5',map_location ='cpu')
-# classifier.eval()
 
-from test_modules import classifier
+classifier = torch.load('digit_classifier.h5',map_location ='cpu')
 classifier.eval()
+
 
 def image_solver(url, model):
     img = cv2.imread(url)
@@ -55,15 +54,14 @@ def image_solver(url, model):
     sudoku.solve()
     solved_board = sudoku.board
     # Unwarp
-    _, warp_with_num = draw_digits_on_warped(warped, solved_board, unsolved_board)
+    _, warp_with_nums = draw_digits_on_warped(warped, solved_board, unsolved_board)
 
-    dst_img = unwarp_image(warp_with_num, corners_img, corners_list, time.time() - start_time)
+    dst_img = unwarp_image(warp_with_nums, corners_img, corners_list, time.time() - start_time)
     return dst_img
 
 if __name__ == "__main__":
-    url = "testimg\Test2.jpg"
+    url = "testimg\sudoku_real_4.jpeg" # Url for test image
     res = image_solver(url, classifier)
-    cv2.imshow("Image", cv2.resize(res, (700,700), cv2.INTER_AREA))
+    cv2.imshow("Result", cv2.resize(res, (700,700), cv2.INTER_AREA))
     cv2.waitKey(0)
     
-    # print(res)
