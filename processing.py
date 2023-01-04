@@ -24,6 +24,7 @@ def find_contours(img, original):
     hierachy: [Next, Previous, First_Child, Parent]
     contour approximation: https://pyimagesearch.com/2021/10/06/opencv-contour-approximation/
     """
+
     # find contours on threshold image
     contours, hierachy =  cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     #sort the largest contour to find the puzzle
@@ -75,6 +76,7 @@ def warp_image(corner_list, original):
     Output: Perspective transformation matrix and transformed image
     Perspective transformation: https://theailearner.com/tag/cv2-warpperspective/
     """
+
     corners = np.array(corner_list, dtype= "float32")
     top_left, top_right, bot_left, bot_right = corners[0], corners[1], corners[2], corners[3]
     #Get the largest side to be the side of squared transfromed puzzle
@@ -96,6 +98,7 @@ def get_grid_line(img, length = 10):
     """
     Get horizontal and vertical lines from warped image
     """
+
     horizontal = grid_line_helper(img, shape_location= 1)
     vertical = grid_line_helper(img, shape_location=0)
     return vertical, horizontal
@@ -111,6 +114,7 @@ def create_grid_mask(horizontal, vertical):
     # combine two line to make a grid
     grid = cv2.add(horizontal, vertical)
     # Apply threshold to cover more area
+
     # grid = cv2.adaptiveThreshold(grid, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 235, 2)
     morpho_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
     grid = cv2.dilate(grid, morpho_kernel, iterations=2)
@@ -130,6 +134,7 @@ def split_squares(number_img):
     """
     square_list = []
     side = number_img.shape[0] // 9
+
     #find each square and append to square_list
     for j in range(0,9):
         for i in range(0,9):
@@ -147,8 +152,10 @@ def clean_square(square_list):
     Return cleaned-square list and number of digits available in the image
     Clean-square list has both 0 and images
     """
+
     cleaned_squares = []
     count = 0
+
     for sq in square_list:
         new_img, is_num = clean_square_helper(sq)
         if is_num:
@@ -165,6 +172,7 @@ def clean_square_all_images(square_list):
     Return cleaned-square list 
     Clean-square list has all images(images with no number with be black image after cleaning)
     """
+
     square_cleaned_list = []
     for i in square_list:
         clean_square, _ = clean_square_helper(i)
@@ -184,6 +192,7 @@ def draw_digits_on_warped(warped_img, solved_board, unsolved_board):
     """
     Function to draw digits from solved board to warped img
     """
+    
     width = warped_img.shape[0] // 9
 
     img_w_text = np.zeros_like(warped_img)
