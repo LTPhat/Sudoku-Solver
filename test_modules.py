@@ -13,19 +13,19 @@ classifier = torch.load('digit_classifier.h5',map_location ='cpu')
 classifier.eval()
 
 
-img = "testimg\sudoku_real_4.jpeg"
+img = "testimg\sudoku_real_8.jpeg"
 img = cv2.imread(img)
 thresholded = preprocess(img)
-corners_img, corners, _ = find_contours(thresholded, img)
+corners_img, corners, org_img = find_contours(thresholded, img)
 warped, matrix = warp_image(corner_list=corners, original= corners_img)
 warped_processed = preprocess(warped)
-horizontal = grid_line_helper(warped_processed, shape_location =0)
+horizontal = grid_line_helper(warped_processed, shape_location = 0)
 vertical = grid_line_helper(warped_processed, shape_location=1)
 
 
 
 def test_wrap_image(thresholded):
-    corners_img, corners = find_contours(thresholded, thresholded)
+    corners_img, corners,_ = find_contours(thresholded, thresholded)
     res_img, matrix = warp_image(corners, corners_img)
     res_img = cv2.resize(res_img, (600,600),interpolation = cv2.INTER_AREA)
     cv2.imshow("Wraped image", res_img)
@@ -183,51 +183,35 @@ def test_draw_digits_warped(warped_img, solved_board, unsolved_board):
 
 
 def test_unwarp_image(img_src, img_dst, corner_list):
-    dst_img = unwarp_image(img_src, img_dst, corner_list, 0.1)
+    dst_img = unwarp_image(img_src, img_dst, corner_list, 0.115)
     # cv2.imshow("Res", dst_img)
     # cv2.waitKey(0)
     return dst_img
 
 if __name__ == "__main__":
-    cv2.imshow("img", img)
+
+    cv2.imshow("Original image", cv2.resize(img, (600,600)))
+    cv2.waitKey(0)
+    cv2.imshow("Find corners", cv2.resize(corners_img, (600,600), cv2.INTER_AREA))
     cv2.waitKey(0)
     get = test_create_grid_mask(horizontal, vertical)
     number = cv2.bitwise_and(cv2.resize(warped_processed, (600,600), cv2.INTER_AREA), get)
     square = test_split_square(number)
     square_cleaned_list = test_clean_square_visualize(square)
-    test_clean_square_count(square)
     resized = test_resize_clean_square(square_cleaned_list)
     resize_norm = normalize(resized)
     res_str = test_recognize_digits(classifier, resize_norm)
+    print(res_str)
+
     board = test_convert_str_to_board(res_str)
     res_board, unsolved_board = test_sudoku_solver(board)
     print(res_board)
     print(unsolved_board)
 
     _, warp_with_nums = test_draw_digits_warped(warped, res_board, unsolved_board)
-    cv2.imshow("warped", cv2.resize(warp_with_nums, (600,600), cv2.INTER_AREA))
+    cv2.imshow("Warped with numbers", cv2.resize(warp_with_nums, (600,600), cv2.INTER_AREA))
     cv2.waitKey(0)
     print(warp_with_nums.shape)
     dst_img = test_unwarp_image(warp_with_nums, img, corners)
-
-    cv2.imshow("res", cv2.resize(dst_img, (600,600), cv2.INTER_AREA))
+    cv2.imshow("Final result", cv2.resize(dst_img, (800,800), cv2.INTER_AREA))
     cv2.waitKey(0)
-
-    ################
-    #NOTE: Consider find_contour function, upwarp_image
-
-
-    # print(warped_processed.shape)
-    # img_text = test_draw_digits_warped(warped_processed, res_board, unsolved_board)
-    # # # Must note: Check error in module unwarp_image
-    # dst_img = test_unwarp_image(img_text, img, corners)
-    # cv2.imshow("dest", dst_img)
-    # cv2.waitKey(0)
-    # cv2.imshow("Img text", img_text)
-    # cv2.waitKey(0)
-
-    # # warped_processed = cv2.resize(warped_processed, (600,600), interpolation=cv2.INTER_AREA)
-    # # cv2.imshow("123",dst_img)
-    # # cv2.waitKey(0)
-    # dst_img = test_unwarp_image(warped_processed, img, corners)
-    # print(img.shape)
