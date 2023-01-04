@@ -4,7 +4,18 @@ from threshold import preprocess
 from utils import find_corners, draw_circle_at_corners, grid_line_helper, draw_line
 from utils import clean_square_helper, classify_one_digit
 
+#----------------Process pipe line------------------------------#
 
+# 1) Threshold Adaptive to get gray-scale image to find contours
+# 2) Find contours from original image
+# 3) Image alignment (warp image) on original image
+# 4) Get horizontal, vertical line and create grid mask
+# 5) Extract numbers and split gray-scale image into 81 squares
+# 6) Clean noise pixels of each square
+# 7) Recognize digits
+# 8) Solve sudoku
+# 9) Draw solved board on warped image
+# 10) Unwarped image --> Result
 
 
 def find_contours(img, original):
@@ -42,13 +53,16 @@ def find_contours(img, original):
             print("Exception 2 : Get another image to get square-shape puzzle")
             return [],[]
         corner_list = [top_left, top_right, bot_right, bot_left]
-        cv2.drawContours(original, [polygon], 0, (0,255,0), 3)
         draw_original = original.copy()
+        cv2.drawContours(draw_original, [polygon], 0, (0,255,0), 3)
         #draw circle at each corner point
         for x in corner_list:
             draw_circle_at_corners(draw_original, x)
 
-        return original, corner_list, draw_original
+        return draw_original, corner_list, original
+        # draw_original: Img which drown contour and corner
+        # corner_list: list of 4 corner points
+        # original: Original imgs
     print("Can not detect puzzle")
     return [],[]
 
@@ -89,7 +103,7 @@ def get_grid_line(img, length = 10):
 
 
 
-def create_grid_mask(vertical, horizontal):
+def create_grid_mask(horizontal, vertical):
     """
     Completely detect all lines by using Hough Transformation
     Create grid mask to extract number by using bitwise_and with warped images
@@ -131,6 +145,7 @@ def split_squares(number_img):
 def clean_square(square_list):
     """
     Return cleaned-square list and number of digits available in the image
+    Clean-square list has both 0 and images
     """
     cleaned_squares = []
     count = 0
@@ -145,6 +160,16 @@ def clean_square(square_list):
 
 
 
+def clean_square_all_images(square_list):
+    """
+    Return cleaned-square list 
+    Clean-square list has all images(images with no number with be black image after cleaning)
+    """
+    square_cleaned_list = []
+    for i in square_list:
+        clean_square, _ = clean_square_helper(i)
+        square_cleaned_list.append(clean_square)
+    return square_cleaned_list
 
 def recognize_digits(model, resized):
     res_str = ""
@@ -198,19 +223,7 @@ def unwarp_image(img_src, img_dest, pts, time):
     cv2.fillConvexPoly(img_dest, pts, 0, 16)
     dst_img = cv2.add(img_dest, warped)
     dst_img_height, dst_img_width = dst_img.shape[0], dst_img.shape[1]
-    cv2.putText(dst_img, str(time), (dst_img_width - 200, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+    cv2.putText(dst_img, "Time solved: {} s".format(str(np.round(time,4))), (dst_img_width - 360, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
     return dst_img
 
-if __name__ == "__main__":
-    img2 = "Testimg\sudoku.jpg"
-    img2 = cv2.imread(img2)
-    thresholded = preprocess(img2)
-    res, corners = find_contours(thresholded, thresholded)
-    res_img, matrix = warp_image(corners, res)
-    res_img = cv2.resize(res,(600,600) ,interpolation = cv2.INTER_AREA)
-    cv2.imshow("Img", res_img)
-    cv2.waitKey(0)
-    print(res_img.shape)
-    print(corners)
-    print(matrix)
