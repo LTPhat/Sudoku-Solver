@@ -47,12 +47,12 @@ def find_contours(img, original):
         bot_right = find_corners(polygon,limit_func=max, compare_func=np.add)
         #Check polygon is square, if not return []
         #Set threshold rate for width and height to determine square bounding box
-        if not (0.8 < ((top_right[0]-top_left[0]) / (bot_right[1]-top_right[1]))<1.2):
+        if not (0.5 < ((top_right[0]-top_left[0]) / (bot_right[1]-top_right[1]))<1.5):
             print("Exception 1 : Get another image to get square-shape puzzle")
-            return [],[]
+            return [],[],[]
         if bot_right[1] - top_right[1] == 0:
             print("Exception 2 : Get another image to get square-shape puzzle")
-            return [],[]
+            return [],[],[]
         corner_list = [top_left, top_right, bot_right, bot_left]
         draw_original = original.copy()
         cv2.drawContours(draw_original, [polygon], 0, (0,255,0), 3)
@@ -65,7 +65,7 @@ def find_contours(img, original):
         # corner_list: list of 4 corner points
         # original: Original imgs
     print("Can not detect puzzle")
-    return [],[]
+    return [],[],[]
 
 
 
