@@ -49,7 +49,6 @@ while True:
 
             # Create mask
             grid_mask = create_grid_mask(horizontal, vertical)
-            # if grid_mask:
             # Resize will get better result ??
             grid_mask = cv2.resize(grid_mask,(600,600), cv2.INTER_AREA)
             # Extract number
