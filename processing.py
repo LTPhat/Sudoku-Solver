@@ -69,27 +69,30 @@ def find_contours(img, original):
 
 
 
-
 def warp_image(corner_list, original):
     """
     Input: 4 corner points and threshold grayscale image
     Output: Perspective transformation matrix and transformed image
     Perspective transformation: https://theailearner.com/tag/cv2-warpperspective/
     """
-
-    corners = np.array(corner_list, dtype= "float32")
-    top_left, top_right, bot_left, bot_right = corners[0], corners[1], corners[2], corners[3]
-    #Get the largest side to be the side of squared transfromed puzzle
-    side = int(max([
-        np.linalg.norm(top_right - bot_right),
-        np.linalg.norm(top_left - bot_left),
-        np.linalg.norm(bot_right - bot_left),
-        np.linalg.norm(top_left - top_right)
-    ]))
-    out_ptr = np.array([[0,0],[side-1,0],[side-1,side-1], [0,side-1]],dtype="float32")
-    transfrom_matrix = cv2.getPerspectiveTransform(corners, out_ptr)
-    transformed_image = cv2.warpPerspective(original, transfrom_matrix, (side, side))
-    return transformed_image, transfrom_matrix
+    try:
+        corners = np.array(corner_list, dtype= "float32")
+        top_left, top_right, bot_left, bot_right = corners[0], corners[1], corners[2], corners[3]
+        #Get the largest side to be the side of squared transfromed puzzle
+        side = int(max([
+            np.linalg.norm(top_right - bot_right),
+            np.linalg.norm(top_left - bot_left),
+            np.linalg.norm(bot_right - bot_left),
+            np.linalg.norm(top_left - top_right)
+        ]))
+        out_ptr = np.array([[0,0],[side-1,0],[side-1,side-1], [0,side-1]],dtype="float32")
+        transfrom_matrix = cv2.getPerspectiveTransform(corners, out_ptr)
+        transformed_image = cv2.warpPerspective(original, transfrom_matrix, (side, side))
+        return transformed_image, transfrom_matrix
+    except IndexError:
+        print("Can not detect corners")
+    except:
+        print("Something went wrong. Try another image")
 
 
 
@@ -119,7 +122,7 @@ def create_grid_mask(horizontal, vertical):
     morpho_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
     grid = cv2.dilate(grid, morpho_kernel, iterations=2)
     # find the line by Houghline transfromation
-    lines = cv2.HoughLines(grid, 0.3, np.pi/90, 200)
+    lines = cv2.HoughLines(grid, 0.3, np.pi/90, 200) 
     lines_img = draw_line(grid, lines)
     # Extract all the lines
     mask = cv2.bitwise_not(lines_img)
