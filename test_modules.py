@@ -13,7 +13,7 @@ classifier = torch.load('digit_classifier.h5',map_location ='cpu')
 classifier.eval()
 
 
-img = "testimg\sudoku_real_8.jpeg"
+img = "testimg\Real_test1.jpg"
 img = cv2.imread(img)
 thresholded = preprocess(img)
 corners_img, corners, org_img = find_contours(thresholded, img)

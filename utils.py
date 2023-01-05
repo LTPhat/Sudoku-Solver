@@ -30,7 +30,7 @@ def draw_circle_at_corners(original, ptr):
     Helper function to draw circle at corners
     """
 
-    cv2.circle(original, ptr, 15, (0,255,0), cv2.FILLED)
+    cv2.circle(original, ptr, 5, (0,255,0), cv2.FILLED)
 
 
 
