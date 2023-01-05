@@ -1,0 +1,7 @@
+numpy~=1.21.2
+streamlit~=0.87.0
+torch
+streamlit_webrtc
+opencv-python
+matplotlib
+Pillow
