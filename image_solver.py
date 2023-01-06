@@ -30,13 +30,15 @@ def image_solver(url, model):
         vertical = grid_line_helper(warped_processed, shape_location=1)
 
         # Create mask
-        grid_mask = create_grid_mask(horizontal, vertical)
-        
-        # Resize will get better result ??
-        grid_mask = cv2.resize(grid_mask,(600,600), cv2.INTER_AREA)
-        # Extract number
-        number_img = cv2.bitwise_and(cv2.resize(warped_processed, (600,600), cv2.INTER_AREA), grid_mask)
-        # number_img = cv2.bitwise_and(warped_processed, grid_mask)
+        if img.shape[0] > 600 or img.shape[1] > 600:
+            # Resize will get better result ??
+            grid_mask = create_grid_mask(horizontal, vertical)
+            grid_mask = cv2.resize(grid_mask,(600,600), cv2.INTER_AREA)
+            number_img = cv2.bitwise_and(cv2.resize(warped_processed, (600,600), cv2.INTER_AREA), grid_mask)
+        else:
+            grid_mask = create_grid_mask(horizontal, vertical)
+            # Extract number
+            number_img = cv2.bitwise_and(warped_processed, grid_mask)
         # Split into squares
         squares = split_squares(number_img)
         cleaned_squares = clean_square_all_images(squares)
@@ -46,7 +48,7 @@ def image_solver(url, model):
         norm_resized = normalize(resized_list)
 
         # # Recognize digits
-        rec_str = recognize_digits(model, norm_resized)
+        rec_str = recognize_digits(model, norm_resized, original_img)
         board = convert_str_to_board(rec_str)
         
         # Solve
@@ -64,7 +66,7 @@ def image_solver(url, model):
         print("Can not warp image. Please try another image")
 
 if __name__ == "__main__":
-    url = "testimg\Real_test11.png" # Url for test image
+    url = "testimg\Real_test1.jpg" # Url for test image
     res = image_solver(url, classifier)
     cv2.imshow("Result", cv2.resize(res, (700,700), cv2.INTER_AREA))
     cv2.waitKey(0)
