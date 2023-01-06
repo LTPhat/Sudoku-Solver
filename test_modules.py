@@ -149,8 +149,8 @@ def test_classify_one_digit(model, resize_list):
 
 
 
-def test_recognize_digits(model, resize_list):
-    res_str = recognize_digits(model, resize_list)
+def test_recognize_digits(model, resize_list, org_image):
+    res_str = recognize_digits(model, resize_list, org_image)
     return res_str
 
 
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     square_cleaned_list = test_clean_square_visualize(square)
     resized = test_resize_clean_square(square_cleaned_list)
     resize_norm = normalize(resized)
-    res_str = test_recognize_digits(classifier, resize_norm)
+    res_str = test_recognize_digits(classifier, resize_norm, img)
     print(res_str)
 
     board = test_convert_str_to_board(res_str)
