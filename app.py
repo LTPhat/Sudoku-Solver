@@ -16,14 +16,14 @@ classifier = torch.load('digit_classifier.h5',map_location ='cpu')
 classifier.eval()
 
 
-RTC_CONFIGURATION = RTCConfiguration({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
-webrtc_streamer(
-    # ...
-    rtc_configuration={  # Add this config
-        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
-    }
-    # ...
-)
+# RTC_CONFIGURATION = RTCConfiguration({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
+# webrtc_streamer(
+#     # ...
+#     rtc_configuration={  # Add this config
+#         "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+#     }
+#     # ...
+# )
 # Decode image
 def get_base64(bin_file):
     with open(bin_file, 'rb') as f:
@@ -114,7 +114,7 @@ def main(model):
     # Header and Sidebar
     st.markdown("<h1 style='text-align:center; color: #770737; font-weight: bold; font-family: cursive; padding: 30px '>Welcome to Sudoku Solver </h1>",
                 unsafe_allow_html=True)
-    activities = ["Home", "Sudoku solver by image", "Real-time sudoku solver" , "Overall process to solve", "About"]
+    activities = ["Home", "Sudoku solver by image", "Real-time sudoku solver" ,"About sudoku" ,"Overall process to solve", "About"]
     choice = st.sidebar.selectbox("Select your choice", activities)
     st.sidebar.markdown(
     """ Developed by Phat, HCMUT""")
@@ -158,7 +158,6 @@ def main(model):
         st.text("")
         home_image = Image.open("streamlit_app\Bg5.jpg")
         st.image(home_image)
-
     # Process solve by image
     if choice == "Sudoku solver by image":
         header_image = """
@@ -176,7 +175,7 @@ def main(model):
                     justify-content: center;
                     align-items: center;
                     color: transparent;
-                    background-image: linear-gradient(115deg, #7f11d9, #2c1a3b);
+                    background-image: linear-gradient(115deg, #26940a, #162b10);
                     ">
                     <h3 style="color:#fcc200; font-family: cursive; font-weight: bold">
                             Sudoku solver by image</h3>
@@ -207,6 +206,8 @@ def main(model):
         if uploaded_file is not None:
             st.write("File uploaded:", uploaded_file.name)
             show_img = Image.open(uploaded_file)
+            show_img = np.array(show_img)
+            show_img = cv2.cvtColor(show_img, cv2.COLOR_BGR2RGB)
             st.image(show_img, caption= "Original image uploaded")
             if not os.path.exists("streamlit_app\image_from_user"):
                 os.mkdir("streamlit_app\image_from_user")
@@ -237,16 +238,105 @@ def main(model):
                     justify-content: center;
                     align-items: center;
                     color: transparent;
-                    background-image: linear-gradient(115deg, #1193d9, #1b2f69);
+                    background-image: linear-gradient(45deg, #1193d9, #1b2f69);
                     ">
                     <h3 style="color:#fcc200; font-family: cursive">
                             Real-time sudoku solver</h3>
                     </div>
                     </br>"""
         st.markdown(header_realtime, unsafe_allow_html=True)
-        webrtc_streamer(key="example", mode=WebRtcMode.SENDRECV, rtc_configuration=RTC_CONFIGURATION,
-                        video_processor_factory=realtime_solver)
-
-
+        webrtc_streamer(key="key")
+    if choice == "About sudoku":
+        header_sudoku = """
+        <div style="
+                    background-color: #fff;
+                    border-radius: 6px;
+                    min-height: 80px;
+                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                    box-shadow: var(--shadow);
+                    display: flex;
+                    margin: 0px;
+                    padding: 0px;
+                    border-radius: 25px;
+                    box-sizing: border-box;
+                    justify-content: center;
+                    align-items: center;
+                    color: transparent;
+                    background-image: linear-gradient(115deg, #7a0421, #2e050f);
+                    ">
+                    <h3 style="color:#fcc200; font-family: cursive">
+                            What is sudoku?</h3>
+                    </div>
+                    </br>"""
+        st.markdown(header_sudoku, unsafe_allow_html=True)
+        content_render = """</br>
+                            <div style="background-color:#FFF5EE;
+                            padding:20px; 
+                            border: 5px groove;
+                            border-radius: 15px 50px 30px;
+                            position: relative;
+                            background-image: linear-gradient(115deg, #f5cfab, #a88d72);
+                            top: 10px; ">
+                            <p style = "color: black; font-size: 18px; font-family: cursive"; text-align:justify;><b>Sudoku</b> 
+                            (originally called <b>Number Place</b>), is a logic-based, combinatorial number-placement puzzle. 
+                            </p>
+                            <p style = "color: black; font-size: 18px; font-family: cursive"; text-align:justify;>In classic Sudoku, the objective is to fill a 9 × 9 grid with digits so that each column, each row, and each of the nine 3 × 3 subgrids that compose the grid (also called "boxes", "blocks", or "regions") contain all of the digits from 1 to 9. 
+                            The puzzle setter provides a partially completed grid, which for a well-posed puzzle has a single solution.</p>
+                            </div>
+                            </br>"""
+        st.markdown(content_render, unsafe_allow_html=True)
+        st.text("")
+        st.text("")
+        st.image("testimg\Real_test4.jpg",width=700 ,caption= "A typical sudoku puzzle")
+        how_to_play = """
+        <div style="
+                    background-color: #fff;
+                    border-radius: 6px;
+                    min-height: 80px;
+                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                    box-shadow: var(--shadow);
+                    display: flex;
+                    margin: 0px;
+                    padding: 0px;
+                    border-radius: 25px;
+                    box-sizing: border-box;
+                    justify-content: center;
+                    align-items: center;
+                    color: transparent;
+                    background-image: linear-gradient(115deg, #750bb8, #190426);
+                    ">
+                    <h3 style="color:#fcc200; font-family: cursive">
+                            How to solve Sudoku puzzle</h3>
+                    </div>
+                    </br>"""
+        st.markdown(how_to_play, unsafe_allow_html=True)
+        st.video("https://youtu.be/kvU9_MVAiE0")
+        st.text("")
+        st.text("")
+        back_track = """
+        <div style="
+                    background-color: #fff;
+                    border-radius: 6px;
+                    min-height: 80px;
+                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                    box-shadow: var(--shadow);
+                    display: flex;
+                    margin: 10px;
+                    padding: 10px;
+                    border-radius: 25px;
+                    box-sizing: border-box;
+                    justify-content: center;
+                    align-items: center;
+                    color: transparent;
+                    background-image: linear-gradient(115deg, #8f0909, #260303);
+                    ">
+                    <h3 style="color:#fcc200; font-family: cursive">
+                    Solve Sudoku by Backtracking Algorithm</h3>
+                    </div>
+                    </br>"""
+        st.markdown(back_track, unsafe_allow_html=True)
+        st.video("https://youtu.be/eqUwSA0xI-s")
+        st.text("")
+        st.video("https://youtu.be/lK4N8E6uNr4")
 if __name__ == "__main__":
     main(classifier)
