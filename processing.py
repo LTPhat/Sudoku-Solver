@@ -182,10 +182,10 @@ def clean_square_all_images(square_list):
         square_cleaned_list.append(clean_square)
     return square_cleaned_list
 
-def recognize_digits(model, resized):
+def recognize_digits(model, resized, org_img):
     res_str = ""
     for img in resized:
-        digit = classify_one_digit(model, img, threshold=80)
+        digit = classify_one_digit(model, img, org_img)
         res_str += str(digit)
     return res_str
 
