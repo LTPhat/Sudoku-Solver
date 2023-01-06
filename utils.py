@@ -93,13 +93,13 @@ def clean_square_helper(img):
     Output: Cleaned square and boolean var which so that there is number in it
     """
 
-    if np.isclose(img, 0).sum() / (img.shape[0] * img.shape[1]) >= 0.95:
+    if np.isclose(img, 0).sum() / (img.shape[0] * img.shape[1]) >= 0.96:
         return np.zeros_like(img), False
 
     # if there is very little white in the region around the center, this means we got an edge accidently
     height, width = img.shape
     mid = width // 2
-    if np.isclose(img[:, int(mid - width * 0.38):int(mid + width * 0.38)], 0).sum() / (2 * width * 0.38 * height) >= 0.95:
+    if np.isclose(img[:, int(mid - width * 0.38):int(mid + width * 0.38)], 0).sum() / (2 * width * 0.38 * height) >= 0.98:
         return np.zeros_like(img), False
 
     # center image
@@ -141,14 +141,18 @@ def resize_square32(clean_square_list):
 
 
 
-def classify_one_digit(model, resize_square, threshold = 60):
+def classify_one_digit(model, resize_square, org_image):
     """
     Determine whether each square has number by counting number of (not black) pixel and compare to threshold value
     Using classifier to predict number in square
     - Return 0 if the square is blank
     - Return predict digit if the square has number
     """
-
+    threshold = 0
+    if (org_image.shape[0] > 600 or org_image.shape[1] > 600) or (org_image.shape[1] > 600 or org_image.shape[2] > 600):
+        threshold = 40
+    else: 
+        threshold = 60
     # Determine blank square
 
     if (resize_square != resize_square.min()).sum() < threshold:
