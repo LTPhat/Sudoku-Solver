@@ -114,7 +114,7 @@ def main(model):
     # Header and Sidebar
     st.markdown("<h1 style='text-align:center; color: #770737; font-weight: bold; font-family: cursive; padding: 30px '>Welcome to Sudoku Solver </h1>",
                 unsafe_allow_html=True)
-    activities = ["Home", "Sudoku solver by image", "Real-time sudoku solver" ,"About sudoku" ,"Overall process to solve", "About"]
+    activities = ["Home", "Sudoku solver by image", "Sudoku solver by number inputs","About sudoku" ,"Real-time sudoku solver", "Overall process to solve", "About me"]
     choice = st.sidebar.selectbox("Select your choice", activities)
     st.sidebar.markdown(
     """ Developed by Phat, HCMUT""")
@@ -185,7 +185,7 @@ def main(model):
         st.text("")
         st.text("")
         some_sample = """
-        <h4 style="color:black; font-family: cursive"> Some sample result images:</h4>
+        <h5 style="color:black; font-family: cursive"> Some sample result images:</h5>
         """
         st.markdown(some_sample, unsafe_allow_html=True)
         col1, col2, col3 = st.columns(3)
@@ -198,10 +198,29 @@ def main(model):
             st.image("result_image_solver\pic3.png",width=250,caption= "Sample 3")
 
         recommend = """
-        <h6 style="color:black; font-family: cursive"> Click the button to upload your image. Images with big shape are recommended.</h6>
+        <h5 style="color:black; font-family: cursive"> Click the button </b><i><u>Browser file</u></i></b> to upload your image.</h5>
         """
         st.markdown(recommend, unsafe_allow_html=True)
-
+        note = """
+        <div style="
+                    background-color: #fff;
+                    min-height: 60px;
+                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                    box-shadow: var(--shadow);
+                    border-radius: 15px 50px 30px 5px;
+                    box-sizing: border-box;
+                    justify-content: center;
+                    align-items: center;
+                    margin: 10px;
+                    padding: 20px;
+                    color: transparent;
+                    background-image: linear-gradient(115deg, #240c05,#0d0502);
+                    ">
+                    <h3 style="color:#fcc200; font-family: cursive; font-weight: bold; text-align: justify;">
+                            <u>Note:</u> Image with big size are recommended.</h3>
+                    </div>
+                    </br>"""
+        st.markdown(note, unsafe_allow_html=True)
         uploaded_file = st.file_uploader("Choose image file", accept_multiple_files=False)
         if uploaded_file is not None:
             st.write("File uploaded:", uploaded_file.name)
@@ -338,5 +357,44 @@ def main(model):
         st.video("https://youtu.be/eqUwSA0xI-s")
         st.text("")
         st.video("https://youtu.be/lK4N8E6uNr4")
+    
+    if choice == "Sudoku solver by number inputs":
+        header_text = """
+        <div style="
+                    background-color: #fff;
+                    border-radius: 6px;
+                    min-height: 80px;
+                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                    box-shadow: var(--shadow);
+                    display: flex;
+                    margin: 0px;
+                    padding: 0px;
+                    border-radius: 25px;
+                    box-sizing: border-box;
+                    justify-content: center;
+                    align-items: center;
+                    color: transparent;
+                    background-image: linear-gradient(45deg, #803211, #381303);
+                    ">
+                    <h3 style="color:#fcc200; font-family: cursive">
+                            Sudoku solver by text input</h3>
+                    </div>
+                    </br>"""
+        st.markdown(header_text, unsafe_allow_html=True)
+        input_str = ""
+        with st.form(key='myform', clear_on_submit=False):
+            for i in range(1,10):
+                cols = st.columns(9)
+                for j, col in enumerate(cols):
+                    cell = col.text_input("[{}][{}]".format(i, j+1))
+                    input_str += cell
+            submitButton = st.form_submit_button(label = 'Solve')
+        if submitButton:
+            if len(input_str) != 81:
+                st.warning("Invalid input. Please check again")
+                st.success(len(input_str))
+                st.error(input_str)
+            else:
+                st.success(input_str)
 if __name__ == "__main__":
     main(classifier)
