@@ -52,6 +52,11 @@ def solve_by_image(upload_img, model):
     res_img = image_solver(upload_img, model)
     return res_img
 
+# Draw sudoku grid with number from string
+
+def draw_grid(target_shape = (600,600)):
+    base_img = np.zeros(target_shape)
+    return base_img
 
 # Process for real-time solver page
 
@@ -119,6 +124,8 @@ def main(model):
     st.sidebar.markdown(
     """ Developed by Phat, HCMUT""")
 
+
+
     #Process Home Page
     if choice == "Home":
         html_render_1 = """</br>
@@ -158,6 +165,10 @@ def main(model):
         st.text("")
         home_image = Image.open("streamlit_app\Bg5.jpg")
         st.image(home_image)
+
+
+
+
     # Process solve by image
     if choice == "Sudoku solver by image":
         header_image = """
@@ -211,8 +222,8 @@ def main(model):
                     box-sizing: border-box;
                     justify-content: center;
                     align-items: center;
-                    margin: 10px;
-                    padding: 20px;
+                    margin: 20px;
+                    padding: 10px;
                     color: transparent;
                     background-image: linear-gradient(115deg, #240c05,#0d0502);
                     ">
@@ -239,6 +250,9 @@ def main(model):
             res_img = image_solver(saveimg_dir, model)
             st.image(res_img, caption="Result")
     
+
+
+
     #Process real-time
     if choice == "Real-time sudoku solver":
         
@@ -265,6 +279,11 @@ def main(model):
                     </br>"""
         st.markdown(header_realtime, unsafe_allow_html=True)
         webrtc_streamer(key="key")
+
+
+
+
+
     if choice == "About sudoku":
         header_sudoku = """
         <div style="
@@ -299,7 +318,7 @@ def main(model):
                             <p style = "color: black; font-size: 18px; font-family: cursive"; text-align:justify;><b>Sudoku</b> 
                             (originally called <b>Number Place</b>), is a logic-based, combinatorial number-placement puzzle. 
                             </p>
-                            <p style = "color: black; font-size: 18px; font-family: cursive"; text-align:justify;>In classic Sudoku, the objective is to fill a 9 × 9 grid with digits so that each column, each row, and each of the nine 3 × 3 subgrids that compose the grid (also called "boxes", "blocks", or "regions") contain all of the digits from 1 to 9. 
+                            <p style = "color: black; font-sizeap: 18px; font-family: cursive"; text-align:justify;>In classic Sudoku, the objective is to fill a 9 × 9 grid with digits so that each column, each row, and each of the nine 3 × 3 subgrids that compose the grid (also called "boxes", "blocks", or "regions") contain all of the digits from 1 to 9. 
                             The puzzle setter provides a partially completed grid, which for a well-posed puzzle has a single solution.</p>
                             </div>
                             </br>"""
@@ -358,6 +377,10 @@ def main(model):
         st.text("")
         st.video("https://youtu.be/lK4N8E6uNr4")
     
+
+
+
+
     if choice == "Sudoku solver by number inputs":
         header_text = """
         <div style="
@@ -381,12 +404,63 @@ def main(model):
                     </div>
                     </br>"""
         st.markdown(header_text, unsafe_allow_html=True)
+        request ="""
+        <h5 style="color:black; font-family: cursive">Fill in the sudoku quiz below.</h5>
+        """
+        st.markdown(request, unsafe_allow_html=True)
+        note_term = """
+        <div style="
+                    background-color: #fff;
+                    border-radius: 6px;
+                    min-height: 60px;
+                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                    box-shadow: var(--shadow);
+                    display: flex;
+                    margin: 0px;
+                    padding: 0px;
+                    border-radius: 25px;
+                    box-sizing: border-box;
+                    justify-content: center;
+                    align-items: center;
+                    color: transparent;
+                    background-image: linear-gradient(45deg, #18224a, #090d1c);
+                    ">
+                    <h3 style="color:#fcc200; font-family: cursive">
+                           Fill in the blank squares with 0!</h3>
+                    </div>
+                    </br>"""
+        st.markdown(note_term, unsafe_allow_html= True)
+        example_image = """
+        <h5 style="color:black; font-family: cursive">Example image</h5>
+        """
+        st.markdown(example_image, unsafe_allow_html=True)
+        st.image("testimg\Real_test4.jpg", caption="Example image:")
+        example_input = """
+        <h5 style="color:black; font-family: cursive">Example input:</h5>
+        """
+        st.markdown(example_input, unsafe_allow_html=True)
+        st.text("")
+        st.text("0 0 0 0 0 0 0 0 0")
+        st.text("0 0 8 2 3 6 4 0 0")
+        st.text("0 1 0 0 5 0 0 2 0")
+        st.text("5 0 0 0 0 0 0 0 9")
+        st.text("1 0 0 0 0 0 0 0 7")
+        st.text("0 8 0 0 0 0 0 5 0")
+        st.text("0 0 5 0 0 0 2 0 0")
+        st.text("0 0 0 8 0 7 0 0 0")
+        st.text("0 0 0 0 2 0 0 0 0")
+        st.text("")
+        your_input = """
+        <h5 style="color:black; font-family: cursive">Your sudoku quiz:</h5>
+        """
+        st.markdown(your_input, unsafe_allow_html= True)
+
         input_str = ""
         with st.form(key='myform', clear_on_submit=False):
             for i in range(1,10):
                 cols = st.columns(9)
                 for j, col in enumerate(cols):
-                    cell = col.text_input("[{}][{}]".format(i, j+1))
+                    cell = col.text_input("A[{}][{}]".format(i, j+1))
                     input_str += cell
             submitButton = st.form_submit_button(label = 'Solve')
         if submitButton:
@@ -395,6 +469,12 @@ def main(model):
                 st.success(len(input_str))
                 st.error(input_str)
             else:
-                st.success(input_str)
+                base_img = draw_grid(target_shape=(600,600))
+                board = convert_str_to_board(input_str)
+                sudoku = Sudoku_solver(board, size = 9)
+                sudoku.solve()
+                res_board = sudoku.board
+                result_img = draw_digits_on_warped(base_img, res_board, board)
+                st.image(result_img, caption= "Result image")
 if __name__ == "__main__":
     main(classifier)
