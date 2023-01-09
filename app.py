@@ -45,21 +45,75 @@ def set_background(png_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-set_background("streamlit_app\Bg4.jpg")
 
 # Process for solve_by_image page
 def solve_by_image(upload_img, model):
     res_img = image_solver(upload_img, model)
     return res_img
 
-# Draw sudoku grid with number from string
 
-def draw_grid(target_shape = (600,600)):
-    base_img = np.zeros(target_shape)
+############ Helper function for number solve page ##################
+def draw_gridline(target_shape = (600,600)):
+    base_img = 1* np.ones(target_shape)
+    width = base_img.shape[0] // 9
+    cv2.rectangle(base_img, (0,0), (base_img.shape[0], base_img.shape[1]), (0,0,0), 10)
+    for i in range(1,10):
+        cv2.line(base_img, (i*width, 0), (i*width, base_img.shape[1]), (0,0,0), 5)
+        cv2.line(base_img, (0, i* width), (base_img.shape[0], i*width), (0,0,0), 5)
     return base_img
 
-# Process for real-time solver page
 
+def draw_user_image(base_img, input_str):
+    """
+    Create sudoku quiz image from user input
+    """
+    width = base_img.shape[0] // 9
+    board = convert_str_to_board(input_str)
+    for j in range(9):
+        for i in range(9):
+            if board[j][i] !=0 : # Only draw new number to blank cell in warped image, avoid overlapping 
+
+                p1 = (i * width, j * width)  # Top left corner of a bounding box
+                p2 = ((i + 1) * width, (j + 1) * width)  # Bottom right corner of bounding box
+
+                # Find the center of square to draw digit
+                center = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
+                text_size, _ = cv2.getTextSize(str(board[j][i]), cv2.FONT_HERSHEY_SIMPLEX, 1, 6)
+                text_origin = (center[0] - text_size[0] // 2, center[1] + text_size[1] // 2)
+
+                cv2.putText(base_img, str(board[j][i]),
+                            text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 6)
+    return base_img, board
+
+def solve(board):
+    unsolved_board = board.copy()
+    sudoku = Sudoku_solver(board, 9)
+    sudoku.solve()
+    res_board = sudoku.board
+    return res_board
+
+def draw_result(base_img, solved_board):
+    """
+    Complete image from draw_user_image module after solving
+    """
+    width = base_img.shape[0] // 9
+    for j in range(9):
+        for i in range(9):  
+            p1 = (i * width, j * width)  # Top left corner of a bounding box
+            p2 = ((i + 1) * width, (j + 1) * width)  # Bottom right corner of bounding box
+
+            # Find the center of square to draw digit
+            center = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
+            text_size, _ = cv2.getTextSize(str(solved_board[j][i]), cv2.FONT_HERSHEY_SIMPLEX, 1, 6)
+            text_origin = (center[0] - text_size[0] // 2, center[1] + text_size[1] // 2)
+            cv2.putText(base_img, str(solved_board[j][i]),
+                        text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 6)
+    return base_img
+
+########################################################
+
+
+# Process for real-time solver page
 class realtime_solver(VideoProcessorBase):
     def transform(self, frame):
         img = frame.to_ndarray(format="bgr24")
@@ -113,22 +167,11 @@ class realtime_solver(VideoProcessorBase):
         
         return img
 
-
-def main(model):
-
-    # Header and Sidebar
-    st.markdown("<h1 style='text-align:center; color: #770737; font-weight: bold; font-family: cursive; padding: 30px '>Welcome to Sudoku Solver </h1>",
-                unsafe_allow_html=True)
-    activities = ["Home", "Sudoku solver by image", "Sudoku solver by number inputs","About sudoku" ,"Real-time sudoku solver", "Overall process to solve", "About me"]
-    choice = st.sidebar.selectbox("Select your choice", activities)
-    st.sidebar.markdown(
-    """ Developed by Phat, HCMUT""")
-
-
-
-    #Process Home Page
-    if choice == "Home":
-        html_render_1 = """</br>
+def home_page():
+    """
+    Home page content
+    """
+    html_render_1 = """</br>
                             </br>
                             <div style="background-color:#FFF5EE;
                             padding:8px; 
@@ -140,38 +183,38 @@ def main(model):
                             A simple sudoku solver app using OpenCV and CNN</h4>
                             </div>
                             </br>"""
-        st.markdown(html_render_1, unsafe_allow_html=True)
-        html_render_2 = """
-        </br>
-        </br>
-        <div style="
-                    background-color:#c0ccc0;
-                    padding:10px; 
-                    border: 5px outset ;
-                    border-radius: 25px;
-                    position: relative;
-                    top: 30px;
-                    ">
-                    <h4 style="color:black; font-family: cursive">
-                            This app has two functions:</h4>
-                    <ul>
-                    <li style ="color: black;font-family: cursive; ">Solve sudoku quiz through uploading image.</li>
-                    <li style ="color: black;font-family: cursive;" >Solve real-time sudoku quiz through camera.</li>
-                    </ul>
-                    </div>
-                    </br>"""
-        st.markdown(html_render_2, unsafe_allow_html=True)
-        st.text("")
-        st.text("")
-        home_image = Image.open("streamlit_app\Bg5.jpg")
-        st.image(home_image)
+    st.markdown(html_render_1, unsafe_allow_html=True)
+    html_render_2 = """
+    </br>
+    </br>
+    <div style="
+                background-color:#c0ccc0;
+                padding:10px; 
+                border: 5px outset ;
+                border-radius: 25px;
+                position: relative;
+                top: 30px;
+                ">
+                <h4 style="color:black; font-family: cursive">
+                        This app has three functions:</h4>
+                <ul>
+                <li style ="color: black;font-family: cursive; ">Solve sudoku quiz from user's input numbers.</li>
+                <li style ="color: black;font-family: cursive; ">Solve sudoku quiz from uploading image.</li>
+                <li style ="color: black;font-family: cursive;" >Solve real-time sudoku quiz from Webcam.</li>
+                </ul>
+                </div>
+                </br>"""
+    st.markdown(html_render_2, unsafe_allow_html=True)
+    st.text("")
+    st.text("")
+    home_image = Image.open("streamlit_app\Bg5.jpg")
+    st.image(home_image)
 
 
 
+def image_solve_page(model):
 
-    # Process solve by image
-    if choice == "Sudoku solver by image":
-        header_image = """
+    header_image = """
         <div style="
                     background-color: #fff;
                     border-radius: 6px;
@@ -192,71 +235,69 @@ def main(model):
                             Sudoku solver by image</h3>
                     </div>
                     </br>"""
-        st.markdown(header_image, unsafe_allow_html=True)
-        st.text("")
-        st.text("")
-        some_sample = """
-        <h5 style="color:black; font-family: cursive"> Some sample result images:</h5>
-        """
-        st.markdown(some_sample, unsafe_allow_html=True)
-        col1, col2, col3 = st.columns(3)
+    st.markdown(header_image, unsafe_allow_html=True)
+    st.text("")
+    st.text("")
+    some_sample = """
+    <h5 style="color:black; font-family: cursive"> Some sample result images:</h5>
+    """
+    st.markdown(some_sample, unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
 
-        with col1:
-            st.image("result_image_solver\pic1.png",width=250,caption= "Sample 1")
-        with col2:
-            st.image("result_image_solver\pic2.png",width=250,caption= "Sample 2")
-        with col3:
-            st.image("result_image_solver\pic3.png",width=250,caption= "Sample 3")
+    with col1:
+        st.image("result_image_solver\pic1.png",width=250,caption= "Sample 1")
+    with col2:
+        st.image("result_image_solver\pic2.png",width=250,caption= "Sample 2")
+    with col3:
+        st.image("result_image_solver\pic3.png",width=250,caption= "Sample 3")
 
-        recommend = """
-        <h5 style="color:black; font-family: cursive"> Click the button </b><i><u>Browser file</u></i></b> to upload your image.</h5>
-        """
-        st.markdown(recommend, unsafe_allow_html=True)
-        note = """
-        <div style="
-                    background-color: #fff;
-                    min-height: 60px;
-                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
-                    box-shadow: var(--shadow);
-                    border-radius: 15px 50px 30px 5px;
-                    box-sizing: border-box;
-                    justify-content: center;
-                    align-items: center;
-                    margin: 20px;
-                    padding: 10px;
-                    color: transparent;
-                    background-image: linear-gradient(115deg, #240c05,#0d0502);
-                    ">
-                    <h3 style="color:#fcc200; font-family: cursive; font-weight: bold; text-align: justify;">
-                            <u>Note:</u> Image with big size are recommended.</h3>
-                    </div>
-                    </br>"""
-        st.markdown(note, unsafe_allow_html=True)
-        uploaded_file = st.file_uploader("Choose image file", accept_multiple_files=False)
-        if uploaded_file is not None:
-            st.write("File uploaded:", uploaded_file.name)
-            show_img = Image.open(uploaded_file)
-            show_img = np.array(show_img)
-            show_img = cv2.cvtColor(show_img, cv2.COLOR_BGR2RGB)
-            st.image(show_img, caption= "Original image uploaded")
-            if not os.path.exists("streamlit_app\image_from_user"):
-                os.mkdir("streamlit_app\image_from_user")
-            save_dir = "streamlit_app\image_from_user"
-            with open(os.path.join(save_dir, uploaded_file.name), "wb") as f:
-                f.write(uploaded_file.getbuffer())
-        if st.button("Solve"):
-            saveimg_dir = "streamlit_app\image_from_user" + "\{}".format(uploaded_file.name)
-            #Solve
-            res_img = image_solver(saveimg_dir, model)
-            st.image(res_img, caption="Result")
-    
-
+    recommend = """
+    <h5 style="color:black; font-family: cursive"> Click the button </b><i><u>Browser file</u></i></b> to upload your image.</h5>
+    """
+    st.markdown(recommend, unsafe_allow_html=True)
+    note = """
+    <div style="
+                background-color: #fff;
+                min-height: 60px;
+                --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                box-shadow: var(--shadow);
+                border-radius: 15px 50px 30px 5px;
+                box-sizing: border-box;
+                justify-content: center;
+                align-items: center;
+                margin: 20px;
+                padding: 10px;
+                color: transparent;
+                background-image: linear-gradient(115deg, #240c05,#0d0502);
+                ">
+                <h3 style="color:#fcc200; font-family: cursive; font-weight: bold; text-align: justify;">
+                        <u>Note:</u> Image with big size are recommended.</h3>
+                </div>
+                </br>"""
+    st.markdown(note, unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Choose image file", accept_multiple_files=False)
+    if uploaded_file is not None:
+        st.write("File uploaded:", uploaded_file.name)
+        show_img = Image.open(uploaded_file)
+        show_img = np.array(show_img)
+        show_img = cv2.cvtColor(show_img, cv2.COLOR_BGR2RGB)
+        st.image(show_img, caption= "Original image uploaded")
+        if not os.path.exists("streamlit_app\image_from_user"):
+            os.mkdir("streamlit_app\image_from_user")
+        save_dir = "streamlit_app\image_from_user"
+        with open(os.path.join(save_dir, uploaded_file.name), "wb") as f:
+            f.write(uploaded_file.getbuffer())
+    if st.button("Solve"):
+        saveimg_dir = "streamlit_app\image_from_user" + "\{}".format(uploaded_file.name)
+        #Solve
+        res_img = image_solver(saveimg_dir, model)
+        st.image(res_img, caption="Result")
 
 
-    #Process real-time
-    if choice == "Real-time sudoku solver":
-        
-        header_realtime = """
+
+def real_time_page(model):
+
+    header_realtime = """
         <div style="
                     background-color: #fff;
                     border-radius: 6px;
@@ -277,15 +318,32 @@ def main(model):
                             Real-time sudoku solver</h3>
                     </div>
                     </br>"""
-        st.markdown(header_realtime, unsafe_allow_html=True)
-        webrtc_streamer(key="key")
+    st.markdown(header_realtime, unsafe_allow_html=True)
+    some_sample ="""
+    <h5 style="color:black; font-family: cursive">Some realtime result images:</h5>
+    """
+    st.markdown(some_sample, unsafe_allow_html=True)
+    col1, col2= st.columns(2)
+    with col1:
+        st.image("real_time_img\Res4.png",width=400,caption= "Sample 1")
+    with col2:
+        st.image("real_time_img\Res5.png",width=400,caption= "Sample 2")
 
+    col3, col4= st.columns(2)
+    with col3:
+        st.image("real_time_img\Res8.png",width=400,caption= "Sample 3")
+    with col4:
+        st.image("real_time_img\Res7_fail.png",width=400,caption= "Sample 4")
 
+    webcam_here ="""
+    <h5 style="color:black; font-family: cursive">Your Webcam here:</h5>
+    """
+    st.markdown(webcam_here, unsafe_allow_html=True)
+    webrtc_streamer(key="key")
 
+def about_sudoku_page():
 
-
-    if choice == "About sudoku":
-        header_sudoku = """
+    header_sudoku = """
         <div style="
                     background-color: #fff;
                     border-radius: 6px;
@@ -306,83 +364,79 @@ def main(model):
                             What is sudoku?</h3>
                     </div>
                     </br>"""
-        st.markdown(header_sudoku, unsafe_allow_html=True)
-        content_render = """</br>
-                            <div style="background-color:#FFF5EE;
-                            padding:20px; 
-                            border: 5px groove;
-                            border-radius: 15px 50px 30px;
-                            position: relative;
-                            background-image: linear-gradient(115deg, #f5cfab, #a88d72);
-                            top: 10px; ">
-                            <p style = "color: black; font-size: 18px; font-family: cursive"; text-align:justify;><b>Sudoku</b> 
-                            (originally called <b>Number Place</b>), is a logic-based, combinatorial number-placement puzzle. 
-                            </p>
-                            <p style = "color: black; font-sizeap: 18px; font-family: cursive"; text-align:justify;>In classic Sudoku, the objective is to fill a 9 × 9 grid with digits so that each column, each row, and each of the nine 3 × 3 subgrids that compose the grid (also called "boxes", "blocks", or "regions") contain all of the digits from 1 to 9. 
-                            The puzzle setter provides a partially completed grid, which for a well-posed puzzle has a single solution.</p>
-                            </div>
-                            </br>"""
-        st.markdown(content_render, unsafe_allow_html=True)
-        st.text("")
-        st.text("")
-        st.image("testimg\Real_test4.jpg",width=700 ,caption= "A typical sudoku puzzle")
-        how_to_play = """
-        <div style="
-                    background-color: #fff;
-                    border-radius: 6px;
-                    min-height: 80px;
-                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
-                    box-shadow: var(--shadow);
-                    display: flex;
-                    margin: 0px;
-                    padding: 0px;
-                    border-radius: 25px;
-                    box-sizing: border-box;
-                    justify-content: center;
-                    align-items: center;
-                    color: transparent;
-                    background-image: linear-gradient(115deg, #750bb8, #190426);
-                    ">
-                    <h3 style="color:#fcc200; font-family: cursive">
-                            How to solve Sudoku puzzle</h3>
-                    </div>
-                    </br>"""
-        st.markdown(how_to_play, unsafe_allow_html=True)
-        st.video("https://youtu.be/kvU9_MVAiE0")
-        st.text("")
-        st.text("")
-        back_track = """
-        <div style="
-                    background-color: #fff;
-                    border-radius: 6px;
-                    min-height: 80px;
-                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
-                    box-shadow: var(--shadow);
-                    display: flex;
-                    margin: 10px;
-                    padding: 10px;
-                    border-radius: 25px;
-                    box-sizing: border-box;
-                    justify-content: center;
-                    align-items: center;
-                    color: transparent;
-                    background-image: linear-gradient(115deg, #8f0909, #260303);
-                    ">
-                    <h3 style="color:#fcc200; font-family: cursive">
-                    Solve Sudoku by Backtracking Algorithm</h3>
-                    </div>
-                    </br>"""
-        st.markdown(back_track, unsafe_allow_html=True)
-        st.video("https://youtu.be/eqUwSA0xI-s")
-        st.text("")
-        st.video("https://youtu.be/lK4N8E6uNr4")
-    
+    st.markdown(header_sudoku, unsafe_allow_html=True)
+    content_render = """</br>
+                        <div style="background-color:#FFF5EE;
+                        padding:20px; 
+                        border: 5px groove;
+                        border-radius: 15px 50px 30px;
+                        position: relative;
+                        background-image: linear-gradient(115deg, #f5cfab, #a88d72);
+                        top: 10px; ">
+                        <p style = "color: black; font-size: 18px; font-family: cursive"; text-align:justify;><b>Sudoku</b> 
+                        (originally called <b>Number Place</b>), is a logic-based, combinatorial number-placement puzzle. 
+                        </p>
+                        <p style = "color: black; font-sizeap: 18px; font-family: cursive"; text-align:justify;>In classic Sudoku, the objective is to fill a 9 × 9 grid with digits so that each column, each row, and each of the nine 3 × 3 subgrids that compose the grid (also called "boxes", "blocks", or "regions") contain all of the digits from 1 to 9. 
+                        The puzzle setter provides a partially completed grid, which for a well-posed puzzle has a single solution.</p>
+                        </div>
+                        </br>"""
+    st.markdown(content_render, unsafe_allow_html=True)
+    st.text("")
+    st.text("")
+    st.image("testimg\Real_test4.jpg",width=700 ,caption= "A typical sudoku puzzle")
+    how_to_play = """
+    <div style="
+                background-color: #fff;
+                border-radius: 6px;
+                min-height: 80px;
+                --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                box-shadow: var(--shadow);
+                display: flex;
+                margin: 0px;
+                padding: 0px;
+                border-radius: 25px;
+                box-sizing: border-box;
+                justify-content: center;
+                align-items: center;
+                color: transparent;
+                background-image: linear-gradient(115deg, #750bb8, #190426);
+                ">
+                <h3 style="color:#fcc200; font-family: cursive">
+                        How to solve Sudoku puzzle</h3>
+                </div>
+                </br>"""
+    st.markdown(how_to_play, unsafe_allow_html=True)
+    st.video("https://youtu.be/kvU9_MVAiE0")
+    st.text("")
+    st.text("")
+    back_track = """
+    <div style="
+                background-color: #fff;
+                border-radius: 6px;
+                min-height: 80px;
+                --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                box-shadow: var(--shadow);
+                display: flex;
+                margin: 10px;
+                padding: 10px;
+                border-radius: 25px;
+                box-sizing: border-box;
+                justify-content: center;
+                align-items: center;
+                color: transparent;
+                background-image: linear-gradient(115deg, #8f0909, #260303);
+                ">
+                <h3 style="color:#fcc200; font-family: cursive">
+                Solve Sudoku by Backtracking Algorithm</h3>
+                </div>
+                </br>"""
+    st.markdown(back_track, unsafe_allow_html=True)
+    st.video("https://youtu.be/eqUwSA0xI-s")
+    st.text("")
+    st.video("https://youtu.be/lK4N8E6uNr4")
 
-
-
-
-    if choice == "Sudoku solver by number inputs":
-        header_text = """
+def number_solve_page():
+    header_text = """
         <div style="
                     background-color: #fff;
                     border-radius: 6px;
@@ -400,81 +454,120 @@ def main(model):
                     background-image: linear-gradient(45deg, #803211, #381303);
                     ">
                     <h3 style="color:#fcc200; font-family: cursive">
-                            Sudoku solver by text input</h3>
+                            Sudoku solver by user's input numbers</h3>
                     </div>
                     </br>"""
-        st.markdown(header_text, unsafe_allow_html=True)
-        request ="""
-        <h5 style="color:black; font-family: cursive">Fill in the sudoku quiz below.</h5>
-        """
-        st.markdown(request, unsafe_allow_html=True)
-        note_term = """
-        <div style="
-                    background-color: #fff;
-                    border-radius: 6px;
-                    min-height: 60px;
-                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
-                    box-shadow: var(--shadow);
-                    display: flex;
-                    margin: 0px;
-                    padding: 0px;
-                    border-radius: 25px;
-                    box-sizing: border-box;
-                    justify-content: center;
-                    align-items: center;
-                    color: transparent;
-                    background-image: linear-gradient(45deg, #18224a, #090d1c);
-                    ">
-                    <h3 style="color:#fcc200; font-family: cursive">
-                           Fill in the blank squares with 0!</h3>
-                    </div>
-                    </br>"""
-        st.markdown(note_term, unsafe_allow_html= True)
-        example_image = """
-        <h5 style="color:black; font-family: cursive">Example image</h5>
-        """
-        st.markdown(example_image, unsafe_allow_html=True)
-        st.image("testimg\Real_test4.jpg", caption="Example image:")
-        example_input = """
-        <h5 style="color:black; font-family: cursive">Example input:</h5>
-        """
-        st.markdown(example_input, unsafe_allow_html=True)
-        st.text("")
-        st.text("0 0 0 0 0 0 0 0 0")
-        st.text("0 0 8 2 3 6 4 0 0")
-        st.text("0 1 0 0 5 0 0 2 0")
-        st.text("5 0 0 0 0 0 0 0 9")
-        st.text("1 0 0 0 0 0 0 0 7")
-        st.text("0 8 0 0 0 0 0 5 0")
-        st.text("0 0 5 0 0 0 2 0 0")
-        st.text("0 0 0 8 0 7 0 0 0")
-        st.text("0 0 0 0 2 0 0 0 0")
-        st.text("")
-        your_input = """
-        <h5 style="color:black; font-family: cursive">Your sudoku quiz:</h5>
-        """
-        st.markdown(your_input, unsafe_allow_html= True)
+    st.markdown(header_text, unsafe_allow_html=True)
+    request ="""
+    <h5 style="color:black; font-family: cursive">Fill in the sudoku quiz below.</h5>
+    """
+    st.markdown(request, unsafe_allow_html=True)
+    note_term = """
+    <div style="
+                background-color: #fff;
+                border-radius: 6px;
+                min-height: 60px;
+                --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                box-shadow: var(--shadow);
+                display: flex;
+                margin: 0px;
+                padding: 0px;
+                border-radius: 25px;
+                box-sizing: border-box;
+                justify-content: center;
+                align-items: center;
+                color: transparent;
+                background-image: linear-gradient(45deg, #18224a, #090d1c);
+                ">
+                <h3 style="color:#fcc200; font-family: cursive">
+                        Fill in the blank squares with 0!</h3>
+                </div>
+                </br>"""
+    st.markdown(note_term, unsafe_allow_html= True)
+    example_image = """
+    <h5 style="color:black; font-family: cursive">Example image:</h5>
+    """
+    st.markdown(example_image, unsafe_allow_html=True)
+    st.image("testimg\Real_test4.jpg", caption="Example image")
+    example_input = """
+    <h5 style="color:black; font-family: cursive">Example input:</h5>
+    """
+    st.markdown(example_input, unsafe_allow_html=True)
+    st.text("")
+    st.text("0 0 0 0 0 0 0 0 0")
+    st.text("0 0 8 2 3 6 4 0 0")
+    st.text("0 1 0 0 5 0 0 2 0")
+    st.text("5 0 0 0 0 0 0 0 9")
+    st.text("1 0 0 0 0 0 0 0 7")
+    st.text("0 8 0 0 0 0 0 5 0")
+    st.text("0 0 5 0 0 0 2 0 0")
+    st.text("0 0 0 8 0 7 0 0 0")
+    st.text("0 0 0 0 2 0 0 0 0")
+    st.text("")
+    your_input = """
+    <h5 style="color:black; font-family: cursive">Your sudoku puzzle here:</h5>
+    """
+    st.markdown(your_input, unsafe_allow_html= True)
 
-        input_str = ""
-        with st.form(key='myform', clear_on_submit=False):
-            for i in range(1,10):
-                cols = st.columns(9)
-                for j, col in enumerate(cols):
-                    cell = col.text_input("A[{}][{}]".format(i, j+1))
-                    input_str += cell
-            submitButton = st.form_submit_button(label = 'Solve')
-        if submitButton:
-            if len(input_str) != 81:
-                st.warning("Invalid input. Please check again")
-                st.success(len(input_str))
-                st.error(input_str)
-            else:
-                base_img = draw_grid(target_shape=(600,600))
-                board = convert_str_to_board(input_str)
-                sudoku = Sudoku_solver(board, size = 9)
-                sudoku.solve()
-                res_board = sudoku.board
-                result_img = draw_digits_on_warped(base_img, res_board, board)
-                st.image(result_img, caption= "Result image")
+    input_str = ""
+    with st.form(key='myform', clear_on_submit=False):
+        for i in range(1,10):
+            cols = st.columns(9)
+            for j, col in enumerate(cols):
+                cell = col.text_input("A[{}][{}]".format(i, j+1))
+                input_str += cell
+        submitButton = st.form_submit_button(label = 'Solve')
+    if submitButton:
+        if len(input_str) != 81:
+            st.warning("Invalid input. Please check again")
+            st.warning("Length of input must be 81 and space is not allow in following input string")
+            st.success(len(input_str))
+            st.error(input_str)
+        else:
+            base_img = draw_gridline(target_shape=(600,600))
+            show_image_input = """
+            <h5 style="color:black; font-family: cursive">Your sudoku puzzle:</h5>
+            """
+            st.markdown(show_image_input, unsafe_allow_html= True)
+            in_image, board = draw_user_image(base_img, input_str)
+            st.image(in_image, caption = "Input image")
+            res_board= solve(board)
+            res_img = draw_result(base_img, res_board)
+            show_image_output = """
+            <h5 style="color:black; font-family: cursive">Your result puzzle: </h5>
+            """
+            st.markdown(show_image_output, unsafe_allow_html= True)
+            st.image(res_img, caption= "Result image")
+
+def main(model):
+    # Set background
+    set_background("streamlit_app\Bg4.jpg")
+    # Header and Sidebar
+    st.markdown("<h1 style='text-align: center; color: #770737; font-family: cursive; padding: 40px; margin: 20px; font-size: 38px; '>Welcome to Sudoku Solver App</h1>",
+                unsafe_allow_html=True)
+    activities = ["Home", "Sudoku solver by number inputs", "Sudoku solver by image" ,"About sudoku" ,"Real-time sudoku solver", "Overall process to solve", "About me"]
+    choice = st.sidebar.selectbox("Select your choice", activities)
+    st.sidebar.markdown(
+    """ Developed by Phat, HCMUT""")
+
+    #Process Home Page
+    if choice == "Home":
+        home_page()
+
+    # Process solve by image
+    if choice == "Sudoku solver by image":
+        image_solve_page(classifier)
+    
+    #Process real-time
+    if choice == "Real-time sudoku solver":
+        real_time_page(classifier)
+
+    if choice == "About sudoku":
+        about_sudoku_page()
+        
+    if choice == "Sudoku solver by number inputs":
+        number_solve_page()
+
+
 if __name__ == "__main__":
     main(classifier)
