@@ -207,10 +207,16 @@ def home_page():
     st.markdown(html_render_2, unsafe_allow_html=True)
     st.text("")
     st.text("")
+    sidebar_open = """
+    <h5 style="color:black; font-family: cursive">Click the ">" arrow at the top-left corner to begin.</h5>
+    """
+    st.markdown(sidebar_open, unsafe_allow_html=True)
     home_image = Image.open("streamlit_app\Bg5.jpg")
     st.image(home_image)
-
-
+    source_render = """
+    <h5 style="color:black; font-family: cursive"> <a href = "https://github.com/LTPhat/Sudoku_Solver">Source Code</a></h5>
+    """
+    st.markdown(source_render, unsafe_allow_html=True)
 
 def image_solve_page(model):
 
@@ -243,14 +249,12 @@ def image_solve_page(model):
     """
     st.markdown(some_sample, unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
-
     with col1:
-        st.image("result_image_solver\pic1.png",width=250,caption= "Sample 1")
+        st.image("result_image_solver\pic1.png",width=230,caption= "Sample 1")
     with col2:
-        st.image("result_image_solver\pic2.png",width=250,caption= "Sample 2")
+        st.image("result_image_solver\pic2.png",width=230,caption= "Sample 2")
     with col3:
-        st.image("result_image_solver\pic3.png",width=250,caption= "Sample 3")
-
+        st.image("result_image_solver\pic3.png",width=230,caption= "Sample 3")
     recommend = """
     <h5 style="color:black; font-family: cursive"> Click the button </b><i><u>Browser file</u></i></b> to upload your image.</h5>
     """
@@ -266,12 +270,12 @@ def image_solve_page(model):
                 justify-content: center;
                 align-items: center;
                 margin: 20px;
-                padding: 10px;
+                padding: 20px;
                 color: transparent;
                 background-image: linear-gradient(115deg, #240c05,#0d0502);
                 ">
-                <h3 style="color:#fcc200; font-family: cursive; font-weight: bold; text-align: justify;">
-                        <u>Note:</u> Image with big size are recommended.</h3>
+                <h4 style="color:#fcc200; font-family: cursive; font-weight: bold; text-align: justify;">
+                        <u>Note:</u> Image with big size are recommended to get more accurate result.</h4>
                 </div>
                 </br>"""
     st.markdown(note, unsafe_allow_html=True)
@@ -373,17 +377,53 @@ def about_sudoku_page():
                         position: relative;
                         background-image: linear-gradient(115deg, #f5cfab, #a88d72);
                         top: 10px; ">
-                        <p style = "color: black; font-size: 18px; font-family: cursive"; text-align:justify;><b>Sudoku</b> 
+                        <p style = "color: black; font-size: 18px; font-family: cursive; text-align:justify;"><b>Sudoku</b> 
                         (originally called <b>Number Place</b>), is a logic-based, combinatorial number-placement puzzle. 
                         </p>
-                        <p style = "color: black; font-sizeap: 18px; font-family: cursive"; text-align:justify;>In classic Sudoku, the objective is to fill a 9 × 9 grid with digits so that each column, each row, and each of the nine 3 × 3 subgrids that compose the grid (also called "boxes", "blocks", or "regions") contain all of the digits from 1 to 9. 
+                        <p style = "color: black; font-sizeap: 18px; font-family: cursive; text-align:justify;">In classic Sudoku, the objective is to fill a 9 × 9 grid with digits so that each column, each row, and each of the nine 3 × 3 subgrids that compose the grid (also called "boxes", "blocks", or "regions") contain all of the digits from 1 to 9. 
                         The puzzle setter provides a partially completed grid, which for a well-posed puzzle has a single solution.</p>
                         </div>
                         </br>"""
     st.markdown(content_render, unsafe_allow_html=True)
-    st.text("")
-    st.text("")
     st.image("testimg\Real_test4.jpg",width=700 ,caption= "A typical sudoku puzzle")
+    st.text("")
+    st.text("")
+    rule_render = """</br>
+                        <div style="background-color:#FFF5EE;
+                        padding:10px; 
+                        min-height: 80px;
+                        border-radius: 25px;
+                        position: relative;
+                        background-image: linear-gradient(115deg, #eb0e9a, #380726;
+                        top: 10px; ">
+                        <h3 style="color:#fcc200; font-family: cursive; text-align: center;">
+                            Sudoku rules</h3>
+                        </div>
+                        </br>"""
+    st.markdown(rule_render, unsafe_allow_html=True)
+    rule_content = """<div style="background-color:#FFF5EE;
+                        padding:40px;
+                        border: 5px groove;
+                        border-radius: 15px 50px 30px;
+                        position: relative;
+                        background-image: linear-gradient(115deg, #ede6eb, #a39da1);
+                        top: 10px; ">
+                        <p style = "color: blue; font-size: 20px; font-family: cursive; font-weight: bold;text-align:justify;"> Rule 1 - Each row must contain the numbers from 1 to 9, without repetitions.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">The player must focus on filling each row of the grid while ensuring there are no duplicated numbers. The placement order of the digits is irrelevant.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">Every puzzle, regardless of the difficulty level, begins with allocated numbers on the grid. The player should use these numbers as clues to find which digits are missing in each row.</p>
+                        <p style = "color: blue; font-size: 20px; font-family: cursive; font-weight: bold;text-align:justify;"> Rule 2 - Each column must contain the numbers from 1 to 9, without repetitions.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">The Sudoku rules for the columns on the grid are exactly the same as for the rows. The player must also fill these with the numbers from 1 to 9, making sure each digit occurs only once per column.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">Every puzzle, regardless of the difficulty level, begins with allocated numbers on the grid. The numbers allocated at the beginning of the puzzle work as clues to find which digits are missing in each column and their position.</p>
+                        <p style = "color: blue; font-size: 20px; font-family: cursive; font-weight: bold;text-align:justify;"> Rule 3 - The digits can only occur once per block (nonet).</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">A regular 9 x 9 grid is divided into 9 smaller blocks of 3 x 3, also known as nonets. The numbers from 1 to 9 can only occur once per nonet.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">In practice, this means that the process of filling the rows and columns without duplicated digits finds inside each block another restriction to the numbers’ positioning.</p>
+                        <p style = "color: blue; font-size: 20px; font-family: cursive; font-weight: bold;text-align:justify;"> Rule 4 - The sum of every single row, column and nonet must equal 45</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">To find out which numbers are missing from each row, column or block or if there are any duplicates, the player can simply count or flex their math skills and sum the numbers. When the digits occur only once, the total of each row, column and group must be of 45.</p>
+                        </div>
+                        """
+    st.markdown(rule_content, unsafe_allow_html=True)
+    st.text("")
+    st.text("")
     how_to_play = """
     <div style="
                 background-color: #fff;
@@ -521,7 +561,7 @@ def number_solve_page():
         if len(input_str) != 81:
             st.warning("Invalid input. Please check again")
             st.warning("Length of input must be 81 and space is not allow in following input string")
-            st.success(len(input_str))
+            st.success("Length of input string: {}".format(len(input_str)))
             st.error(input_str)
         else:
             base_img = draw_gridline(target_shape=(600,600))
@@ -530,22 +570,65 @@ def number_solve_page():
             """
             st.markdown(show_image_input, unsafe_allow_html= True)
             in_image, board = draw_user_image(base_img, input_str)
-            st.image(in_image, caption = "Input image")
+            st.image(in_image, caption = "Input puzzle")
             res_board= solve(board)
             res_img = draw_result(base_img, res_board)
             show_image_output = """
             <h5 style="color:black; font-family: cursive">Your result puzzle: </h5>
             """
             st.markdown(show_image_output, unsafe_allow_html= True)
-            st.image(res_img, caption= "Result image")
+            st.image(res_img, caption= "Result puzzle")
 
+def about_me_page():
+    header_aboutme = """
+        <div style="
+                    background-color: #fff;
+                    border-radius: 6px;
+                    min-height: 80px;
+                    --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+                    box-shadow: var(--shadow);
+                    display: flex;
+                    margin: 0px;
+                    padding: 0px;
+                    border-radius: 25px;
+                    box-sizing: border-box;
+                    justify-content: center;
+                    align-items: center;
+                    color: transparent;
+                    background-image: linear-gradient(115deg, #260636, #08030a);
+                    ">
+                    <h3 style="color:#fcc200; font-family: cursive">
+                            About me?</h3>
+                    </div>
+                    </br>"""
+    st.markdown(header_aboutme, unsafe_allow_html=True)
+    
+    info = """
+    </br>
+    </br>
+    <div style="background-color:#FFF5EE;
+                        padding:20px; 
+                        border: 5px groove;
+                        border-radius: 15px 50px 30px;
+                        position: relative;
+                        background-image: linear-gradient(115deg, #c7c0bb,#4d4946);
+                        top: 10px">
+        <ul>
+        <li style ="color: black;font-family: cursive; font-weight: bold">Hello, I'm Lam Thanh Phat.</li>
+        <li style ="color: black;font-family: cursive; font-weight: bold">I'm a second-year student at Ho Chi Minh University of Technology (HCMUT).</li>
+        <li style ="color: black;font-family: cursive; font-weight: bold">My Github:  <a href="https://github.com/LTPhat">My github</a></li>
+        <li style ="color: black;font-family: cursive; font-weight: bold">My Facebook:  <a href="https://www.facebook.com/Nicedreamss">My fb</a></li>
+        </ul>
+    </div>
+    </br>"""
+    st.markdown(info, unsafe_allow_html=True)
 def main(model):
     # Set background
     set_background("streamlit_app\Bg4.jpg")
     # Header and Sidebar
     st.markdown("<h1 style='text-align: center; color: #770737; font-family: cursive; padding: 40px; margin: 20px; font-size: 38px; '>Welcome to Sudoku Solver App</h1>",
                 unsafe_allow_html=True)
-    activities = ["Home", "Sudoku solver by number inputs", "Sudoku solver by image" ,"About sudoku" ,"Real-time sudoku solver", "Overall process to solve", "About me"]
+    activities = ["Home", "Sudoku solver by number inputs", "Sudoku solver by image" ,"Real-time sudoku solver","Overall process to solve", "About sudoku" , "About me"]
     choice = st.sidebar.selectbox("Select your choice", activities)
     st.sidebar.markdown(
     """ Developed by Phat, HCMUT""")
@@ -567,7 +650,8 @@ def main(model):
         
     if choice == "Sudoku solver by number inputs":
         number_solve_page()
-
+    if choice == "About me":
+        about_me_page()
 
 if __name__ == "__main__":
     main(classifier)
