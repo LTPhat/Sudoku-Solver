@@ -52,14 +52,53 @@ def solve_by_image(upload_img, model):
     return res_img
 
 
-############ Helper function for number solve page ##################
-def draw_gridline(target_shape = (600,600)):
+############ Helper function for solve page by numbers##################
+
+### CHECK VALID INPUT FROM USER
+
+def get_column(board, index):
+    return np.array([row[index] for row in board])
+
+def valid_row_or_col(array):
+    if np.all(array == 0) == True:
+        return True
+    return len(set(array[array!=0])) == len(list(array[array!=0]))
+
+def valid_single_box(board, box_x, box_y):
+    box = board[box_x*3 : box_x*3 + 3, box_y*3: box_y*3+3]
+    if len(list(box[box!=0])) == 0:
+        return True
+    return len(set(box[box!=0])) == len(list(box[box!=0]))
+
+def valid_input_str(input_str):
+    board = convert_str_to_board(input_str)
+    # Check valid row
+    for i in range(0,len(board)):
+        if valid_row_or_col(board[i]) == False:
+            return False
+    # Check valid column
+    for j in range(0, len(board[0])):
+        if valid_row_or_col(get_column(board, j)) == False:
+            return False
+    # Check valid box
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if valid_single_box(board, i, j) == False:
+                return False
+    return True
+
+## DRAW INPUT AND RESULT 
+def draw_gridline(target_shape = (600,600,3)):
     base_img = 1* np.ones(target_shape)
     width = base_img.shape[0] // 9
     cv2.rectangle(base_img, (0,0), (base_img.shape[0], base_img.shape[1]), (0,0,0), 10)
     for i in range(1,10):
-        cv2.line(base_img, (i*width, 0), (i*width, base_img.shape[1]), (0,0,0), 5)
-        cv2.line(base_img, (0, i* width), (base_img.shape[0], i*width), (0,0,0), 5)
+        if i % 3 == 0:
+            cv2.line(base_img, (i*width, 0), (i*width, base_img.shape[1]), (0,0,0), 6)
+            cv2.line(base_img, (0, i* width), (base_img.shape[0], i*width), (0,0,0), 6)
+        else:
+            cv2.line(base_img, (i*width, 0), (i*width, base_img.shape[1]), (0,0,0), 2)
+            cv2.line(base_img, (0, i* width), (base_img.shape[0], i*width), (0,0,0), 2)
     return base_img
 
 
@@ -82,7 +121,7 @@ def draw_user_image(base_img, input_str):
                 text_origin = (center[0] - text_size[0] // 2, center[1] + text_size[1] // 2)
 
                 cv2.putText(base_img, str(board[j][i]),
-                            text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 6)
+                            text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 6)
     return base_img, board
 
 def solve(board):
@@ -90,12 +129,9 @@ def solve(board):
     sudoku = Sudoku_solver(board, 9)
     sudoku.solve()
     res_board = sudoku.board
-    return res_board
+    return res_board, unsolved_board
 
-def draw_result(base_img, solved_board):
-    """
-    Complete image from draw_user_image module after solving
-    """
+def draw_result(base_img, unsolved_board, solved_board):
     width = base_img.shape[0] // 9
     for j in range(9):
         for i in range(9):  
@@ -106,9 +142,15 @@ def draw_result(base_img, solved_board):
             center = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
             text_size, _ = cv2.getTextSize(str(solved_board[j][i]), cv2.FONT_HERSHEY_SIMPLEX, 1, 6)
             text_origin = (center[0] - text_size[0] // 2, center[1] + text_size[1] // 2)
-            cv2.putText(base_img, str(solved_board[j][i]),
+            if unsolved_board[j][i] != solved_board[j][i]:
+                cv2.putText(base_img, str(solved_board[j][i]),
+                        text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 6)
+            else:
+                cv2.putText(base_img, str(solved_board[j][i]),
                         text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 6)
     return base_img
+
+
 
 ########################################################
 
@@ -256,7 +298,7 @@ def image_solve_page(model):
     with col3:
         st.image("result_image_solver\pic3.png",width=230,caption= "Sample 3")
     recommend = """
-    <h5 style="color:black; font-family: cursive"> Click the button </b><i><u>Browser file</u></i></b> to upload your image.</h5>
+    <h5 style="color:black; font-family: cursive"> Click the button </b><i><u>Browser file</u></i></b> to upload your image (png, jpeg, webp).</h5>
     """
     st.markdown(recommend, unsafe_allow_html=True)
     note = """
@@ -274,7 +316,7 @@ def image_solve_page(model):
                 color: transparent;
                 background-image: linear-gradient(115deg, #240c05,#0d0502);
                 ">
-                <h4 style="color:#fcc200; font-family: cursive; font-weight: bold; text-align: justify;">
+                <h4 style="color:#fcc200; font-family: cursive; font-weight: bold; text-align: center;">
                         <u>Note:</u> Image with big size are recommended to get more accurate result.</h4>
                 </div>
                 </br>"""
@@ -295,7 +337,7 @@ def image_solve_page(model):
         saveimg_dir = "streamlit_app\image_from_user" + "\{}".format(uploaded_file.name)
         #Solve
         res_img = image_solver(saveimg_dir, model)
-        st.image(res_img, caption="Result")
+        st.image(res_img, caption="Result", clamp=True, channels='BGR')
 
 
 
@@ -409,16 +451,16 @@ def about_sudoku_page():
                         background-image: linear-gradient(115deg, #ede6eb, #a39da1);
                         top: 10px; ">
                         <p style = "color: blue; font-size: 20px; font-family: cursive; font-weight: bold;text-align:justify;"> Rule 1 - Each row must contain the numbers from 1 to 9, without repetitions.</p>
-                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">The player must focus on filling each row of the grid while ensuring there are no duplicated numbers. The placement order of the digits is irrelevant.</p>
-                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">Every puzzle, regardless of the difficulty level, begins with allocated numbers on the grid. The player should use these numbers as clues to find which digits are missing in each row.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive;text-align:justify;">The player must focus on filling each row of the grid while ensuring there are no duplicated numbers. The placement order of the digits is irrelevant.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; text-align:justify;">Every puzzle, regardless of the difficulty level, begins with allocated numbers on the grid. The player should use these numbers as clues to find which digits are missing in each row.</p>
                         <p style = "color: blue; font-size: 20px; font-family: cursive; font-weight: bold;text-align:justify;"> Rule 2 - Each column must contain the numbers from 1 to 9, without repetitions.</p>
-                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">The Sudoku rules for the columns on the grid are exactly the same as for the rows. The player must also fill these with the numbers from 1 to 9, making sure each digit occurs only once per column.</p>
-                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">Every puzzle, regardless of the difficulty level, begins with allocated numbers on the grid. The numbers allocated at the beginning of the puzzle work as clues to find which digits are missing in each column and their position.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; text-align:justify;">The Sudoku rules for the columns on the grid are exactly the same as for the rows. The player must also fill these with the numbers from 1 to 9, making sure each digit occurs only once per column.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; text-align:justify;">Every puzzle, regardless of the difficulty level, begins with allocated numbers on the grid. The numbers allocated at the beginning of the puzzle work as clues to find which digits are missing in each column and their position.</p>
                         <p style = "color: blue; font-size: 20px; font-family: cursive; font-weight: bold;text-align:justify;"> Rule 3 - The digits can only occur once per block (nonet).</p>
-                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">A regular 9 x 9 grid is divided into 9 smaller blocks of 3 x 3, also known as nonets. The numbers from 1 to 9 can only occur once per nonet.</p>
-                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">In practice, this means that the process of filling the rows and columns without duplicated digits finds inside each block another restriction to the numbers’ positioning.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; text-align:justify;">A regular 9 x 9 grid is divided into 9 smaller blocks of 3 x 3, also known as nonets. The numbers from 1 to 9 can only occur once per nonet.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; text-align:justify;">In practice, this means that the process of filling the rows and columns without duplicated digits finds inside each block another restriction to the numbers’ positioning.</p>
                         <p style = "color: blue; font-size: 20px; font-family: cursive; font-weight: bold;text-align:justify;"> Rule 4 - The sum of every single row, column and nonet must equal 45</p>
-                        <p style = "color: black; font-size: 18px; font-family: cursive; font-weight: bold;text-align:justify;">To find out which numbers are missing from each row, column or block or if there are any duplicates, the player can simply count or flex their math skills and sum the numbers. When the digits occur only once, the total of each row, column and group must be of 45.</p>
+                        <p style = "color: black; font-size: 18px; font-family: cursive; text-align:justify;">To find out which numbers are missing from each row, column or block or if there are any duplicates, the player can simply count or flex their math skills and sum the numbers. When the digits occur only once, the total of each row, column and group must be of 45.</p>
                         </div>
                         """
     st.markdown(rule_content, unsafe_allow_html=True)
@@ -563,21 +605,30 @@ def number_solve_page():
             st.warning("Length of input must be 81 and space is not allow in following input string")
             st.success("Length of input string: {}".format(len(input_str)))
             st.error(input_str)
-        else:
-            base_img = draw_gridline(target_shape=(600,600))
+        elif valid_input_str(input_str) == False:
+            base_img = draw_gridline(target_shape=(600,600,3))
             show_image_input = """
             <h5 style="color:black; font-family: cursive">Your sudoku puzzle:</h5>
             """
             st.markdown(show_image_input, unsafe_allow_html= True)
             in_image, board = draw_user_image(base_img, input_str)
             st.image(in_image, caption = "Input puzzle")
-            res_board= solve(board)
-            res_img = draw_result(base_img, res_board)
+            st.error("Invalid puzzle (repetition on row, column or box). Please check again.")
+        else:
+            base_img = draw_gridline(target_shape=(600,600,3))
+            show_image_input = """
+            <h5 style="color:black; font-family: cursive">Your sudoku puzzle:</h5>
+            """
+            st.markdown(show_image_input, unsafe_allow_html= True)
+            in_image, board = draw_user_image(base_img, input_str)
+            st.image(in_image, caption = "Input puzzle")
+            res_board, unsolve_board = solve(board)
+            res_img = draw_result(base_img, unsolve_board, res_board)
             show_image_output = """
             <h5 style="color:black; font-family: cursive">Your result puzzle: </h5>
             """
             st.markdown(show_image_output, unsafe_allow_html= True)
-            st.image(res_img, caption= "Result puzzle")
+            st.image(res_img, caption= "Result puzzle", clamp=True, channels='BGR')
 
 def about_me_page():
     header_aboutme = """
@@ -628,7 +679,7 @@ def main(model):
     # Header and Sidebar
     st.markdown("<h1 style='text-align: center; color: #770737; font-family: cursive; padding: 40px; margin: 20px; font-size: 38px; '>Welcome to Sudoku Solver App</h1>",
                 unsafe_allow_html=True)
-    activities = ["Home", "Sudoku solver by number inputs", "Sudoku solver by image" ,"Real-time sudoku solver","Overall process to solve", "About sudoku" , "About me"]
+    activities = ["Home", "Sudoku solver by number inputs", "Sudoku solver by image" ,"Real-time sudoku solver", "About sudoku" , "About me"]
     choice = st.sidebar.selectbox("Select your choice", activities)
     st.sidebar.markdown(
     """ Developed by Phat, HCMUT""")
