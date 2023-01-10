@@ -411,7 +411,7 @@ def about_sudoku_page():
                     justify-content: center;
                     align-items: center;
                     color: transparent;
-                    background-image: linear-gradient(115deg, #7a0421, #2e050f);
+                    background-image: linear-gradient(115deg, #eb0e9a, #380726);
                     ">
                     <h3 style="color:#fcc200; font-family: cursive">
                             What is sudoku?</h3>
@@ -443,7 +443,7 @@ def about_sudoku_page():
                         min-height: 80px;
                         border-radius: 25px;
                         position: relative;
-                        background-image: linear-gradient(115deg, #eb0e9a, #380726;
+                        background-image: linear-gradient(115deg,  #7a0421, #2e050f;
                         top: 10px; ">
                         <h3 style="color:#fcc200; font-family: cursive; text-align: center;">
                             Sudoku rules</h3>
