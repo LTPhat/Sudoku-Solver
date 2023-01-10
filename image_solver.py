@@ -66,7 +66,7 @@ def image_solver(url, model):
         print("Can not warp image. Please try another image")
 
 if __name__ == "__main__":
-    url = "testimg\Real_test1.jpg" # Url for test image
+    url = "testimg\sudoku.jpg" # Url for test image
     res = image_solver(url, classifier)
     cv2.imshow("Result", cv2.resize(res, (700,700), cv2.INTER_AREA))
     cv2.waitKey(0)
