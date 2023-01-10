@@ -140,7 +140,6 @@ def resize_square32(clean_square_list):
     return resized_list
 
 
-
 def classify_one_digit(model, resize_square, org_image):
     """
     Determine whether each square has number by counting number of (not black) pixel and compare to threshold value
@@ -148,7 +147,6 @@ def classify_one_digit(model, resize_square, org_image):
     - Return 0 if the square is blank
     - Return predict digit if the square has number
     """
-    threshold = 0
     if (org_image.shape[0] > 600 or org_image.shape[1] > 600) or (org_image.shape[1] > 600 or org_image.shape[2] > 600):
         threshold = 40
     else: 

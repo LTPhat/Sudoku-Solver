@@ -63,7 +63,7 @@ while True:
             norm_resized = normalize(resized_list)
 
             # # Recognize digits
-            rec_str = recognize_digits(classifier, norm_resized)
+            rec_str = recognize_digits(classifier, norm_resized, org_img)
             board = convert_str_to_board(rec_str)
             
             # Solve
@@ -75,12 +75,8 @@ while True:
             # Unwarp
             _, warp_with_nums = draw_digits_on_warped(warped, solved_board, unsolved_board)
 
-            final_img = unwarp_image(warp_with_nums, corners_img, corners_list, time.time() - start_time)
-            cv2.imshow("Result", final_img)
-            # final_img.save("{}.png".format(count))
-
-        else:
-            cv2.imshow("Result", img)
+            final_img = unwarp_image(warp_with_nums, corners_img, corners_list, time.time() - start_time)       
+    cv2.imshow("Result", final_img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 cv2.destroyAllWindows()

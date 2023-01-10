@@ -150,7 +150,12 @@ def draw_result(base_img, unsolved_board, solved_board):
                         text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 6)
     return base_img
 
-
+def can_solve(board):
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == 0:
+                return False
+    return True
 
 ########################################################
 
@@ -336,10 +341,12 @@ def image_solve_page(model):
     if st.button("Solve"):
         saveimg_dir = "streamlit_app\image_from_user" + "\{}".format(uploaded_file.name)
         #Solve
-        res_img = image_solver(saveimg_dir, model)
-        st.image(res_img, caption="Result", clamp=True, channels='BGR')
-
-
+        res_img, solved_board = image_solver(saveimg_dir, model)
+        if can_solve(solved_board):
+            st.image(res_img, caption="Result", clamp=True, channels='BGR')
+        else:
+            st.warning("There is something went wrong! Please choose another larger and clearer image.")
+            st.image(res_img, caption="Result", clamp=True, channels='BGR')
 
 def real_time_page(model):
 

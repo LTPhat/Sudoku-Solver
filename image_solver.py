@@ -61,13 +61,13 @@ def image_solver(url, model):
         _, warp_with_nums = draw_digits_on_warped(warped, solved_board, unsolved_board)
 
         dst_img = unwarp_image(warp_with_nums, corners_img, corners_list, time.time() - start_time)
-        return dst_img
+        return dst_img, solved_board
     except TypeError:
         print("Can not warp image. Please try another image")
 
 if __name__ == "__main__":
     url = "testimg\sudoku.jpg" # Url for test image
-    res = image_solver(url, classifier)
+    res, solved_board = image_solver(url, classifier)
     cv2.imshow("Result", cv2.resize(res, (700,700), cv2.INTER_AREA))
     cv2.waitKey(0)
     
