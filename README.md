@@ -108,7 +108,7 @@ Inverse Perspective Transform       |  Final result
 - ``Streamlit`` is a free and open-source framework to rapidly build and share beautiful machine learning and data science web apps. It is a Python-based library specifically designed for machine learning engineers.
 
 - To run app, type the following line on cmd:
-  ```
+  ```python
   streamlit run app.py
   ```
 - The Web application has 6 pages: 
