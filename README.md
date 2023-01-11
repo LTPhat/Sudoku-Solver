@@ -62,9 +62,6 @@
 ```
 - ``Model``: Pretrained `ResNet50`, adjust the first convolutional layer to feed gray-scale image after image processing step.
 
-## Some other result images
-
-
 
 ## Overall Image Processing Pipeline
 
