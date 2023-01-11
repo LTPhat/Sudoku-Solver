@@ -147,6 +147,7 @@ def classify_one_digit(model, resize_square, org_image):
     - Return 0 if the square is blank
     - Return predict digit if the square has number
     """
+    threshold = 0
     if (org_image.shape[0] > 600 or org_image.shape[1] > 600) or (org_image.shape[1] > 600 or org_image.shape[2] > 600):
         threshold = 40
     else: 

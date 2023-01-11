@@ -12,11 +12,11 @@ classifier = torch.load('digit_classifier.h5',map_location ='cpu')
 classifier.eval()
 
 
-frameWidth = 1080
+frameWidth = 960
 frameHeight = 960
 
 cap = cv2.VideoCapture(0)
-frame_rate = 30
+frame_rate = 60
 
 # width is id number 3, height is id 4
 cap.set(3, frameWidth)
@@ -26,7 +26,7 @@ cap.set(4, frameHeight)
 cap.set(10, 100)
 prev = 0
 
-while True:
+while cap.isOpened():
     time_elapsed = time.time() - prev
     success, img = cap.read()
     if time_elapsed > 1. / frame_rate:

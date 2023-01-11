@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 # This module performs sudoku solver which input is a image file.
 
-classifier = torch.load('digit_classifier.h5',map_location ='cpu')
+classifier = torch.load('digit_model.h5',map_location ='cpu')
 classifier.eval()
 
 
@@ -66,7 +66,7 @@ def image_solver(url, model):
         print("Can not warp image. Please try another image")
 
 if __name__ == "__main__":
-    url = "testimg\sudoku.jpg" # Url for test image
+    url = "streamlit_app\image_from_user\Test40.jpg" # Url for test image
     res, solved_board = image_solver(url, classifier)
     cv2.imshow("Result", cv2.resize(res, (700,700), cv2.INTER_AREA))
     cv2.waitKey(0)
