@@ -100,6 +100,23 @@ def valid_input_str(input_str):
             if valid_single_box(board, i, j) == False:
                 return False
     return True
+
+def valid_board(board):
+    # Check valid row
+    for i in range(0,len(board)):
+        if valid_row_or_col(board[i]) == False:
+            return False
+    # Check valid column
+    for j in range(0, len(board[0])):
+        if valid_row_or_col(get_column(board, j)) == False:
+            return False
+    # Check valid box
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if valid_single_box(board, i, j) == False:
+                return False
+    return True
+
 if __name__ == "__main__":
     base_img = draw_grid()
     res_img = base_img.copy()

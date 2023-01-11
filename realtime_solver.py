@@ -7,16 +7,16 @@ import time
 import cv2
 from sudoku_solve import Sudoku_solver
 from PIL import Image
-
+from helper_number_page import valid_board
 classifier = torch.load('digit_classifier.h5',map_location ='cpu')
 classifier.eval()
 
 
-frameWidth = 960
-frameHeight = 720
+frameWidth = 1080
+frameHeight = 960
 
 cap = cv2.VideoCapture(0)
-frame_rate = 60
+frame_rate = 30
 
 # width is id number 3, height is id 4
 cap.set(3, frameWidth)
