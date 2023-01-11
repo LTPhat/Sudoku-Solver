@@ -12,7 +12,7 @@ from sudoku_solve import Sudoku_solver
 import time
 # Define model
 
-classifier = torch.load('digit_classifier.h5',map_location ='cpu')
+classifier = torch.load('digit_model.h5',map_location ='cpu')
 classifier.eval()
 
 
