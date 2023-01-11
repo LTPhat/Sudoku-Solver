@@ -25,7 +25,7 @@ def preprocess(img):
 
 
 if __name__ == "__main__":
-    img = "testimg\sudoku_real_2.jpeg"
+    img = "testimg\sudoku_real_4.jpeg"
     img = cv2.imread(img)
     processed = preprocess(img)
     cv2.imshow("img", cv2.resize(img, (600,600), cv2.INTER_AREA))
