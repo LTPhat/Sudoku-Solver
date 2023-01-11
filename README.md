@@ -62,12 +62,16 @@
 ```
 - ``Model``: Pretrained `ResNet50`, adjust the first convolutional layer to feed gray-scale image after image processing step.
 
+## Some other result images
+
+
 
 ## Overall Image Processing Pipeline
 
 Original Image          |  Adaptive Threshold
 :-------------------------:|:-------------------------:
 ![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/original.png)  |![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/threshold.png)
+
 
 Find corners          |  Perspective Transform
 :-------------------------:|:-------------------------:
@@ -78,19 +82,29 @@ Find grid mask         |  Extract digit images
 :-------------------------:|:-------------------------:
 ![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/complete_grid_line_using_houghLine.png)  |![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/split_81_squares.png)
 
+
 Clean noises        |   Recognize digits
 :-------------------------:|:-------------------------:
-![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/complete_grid_line_using_houghLine.png)  
-|[[6 9 3 5 0 0 0 0 0]
-  [0 0 0 3 0 0 2 5 0]
-  [0 0 0 0 0 4 0 3 8]
-  [0 0 0 0 7 6 4 0 3]
-  [1 0 0 0 0 0 0 0 2]
-  [8 0 3 2 8 0 0 0 0]
-  [4 5 0 1 0 0 0 0 0]
-  [0 8 6 0 0 5 0 0 0]
-  [0 7 0 0 8 0 0 0 0]]
+![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/cleaned_squares.png)  |![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/rec_digit.png)
 
+
+Solve board       |  Draw solved board on image
+:-------------------------:|:-------------------------:
+![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/solve.png)  |![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/draw_digits_on_warped.png)
+
+
+Inverse Perspective Transform       |  Final result
+:-------------------------:|:-------------------------:
+![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/final_result.png)  |![](https://github.com/LTPhat/Sudoku_Solver/blob/main/processing_image/sample2/final_result.png)
+
+## Note
+  Change the url variable to your image url.
+  
+- Test sudoku solver by image on local, run ``image_solver.py``.
+
+- Test real-time solver on local, run ``realtime_solver.py``.
+
+- Test the entire image processing pipeline, run ``test_modules.py``.
 
 ## Sudoku Solver App
 
@@ -165,3 +179,20 @@ Rules          |  How to play
 ### About me page
 
 - Just some personal information.
+
+## References
+
+[1] WRITING CUSTOM DATASETS, DATALOADERS AND TRANSFORMS, https://pytorch.org/tutorials/beginner/data_loading_tutorial.html.
+
+[2] Perspective Transfromation, https://theailearner.com/2020/11/06/perspective-transformation/.
+
+[3] Basic concepts of the homography explained with code, https://docs.opencv.org/4.x/d9/dab/tutorial_homography.html.
+
+[4] Image Thresholding, https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html.
+
+[5] Understanding Homography (a.k.a Perspective Transformation), https://towardsdatascience.com/understanding-homography-a-k-a-perspective-transformation-cacaed5ca17.
+
+[6] Real-Time-Sudoku-Solver-OpenCV-and-Keras, https://github.com/snehitvaddi/Real-Time-Sudoku-Solver-OpenCV-and-Keras.
+
+
+
