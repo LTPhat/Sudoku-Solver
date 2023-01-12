@@ -189,5 +189,5 @@ Rules          |  How to play
 
 [6] Real-Time-Sudoku-Solver-OpenCV-and-Keras, https://github.com/snehitvaddi/Real-Time-Sudoku-Solver-OpenCV-and-Keras.
 
-
+[7] Morphological Transformations, https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html. 
 
