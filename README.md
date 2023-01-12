@@ -4,7 +4,7 @@
 
 - `Finished time:` 12/01/2023.
 
-## About the dataset and model
+## About dataset and model
 
 - We don't use MNIST dataset because:
 
