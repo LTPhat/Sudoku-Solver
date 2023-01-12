@@ -1,6 +1,6 @@
 # Sudoku Solver
 
-- Sudoku solver app using ``OpenCV`` for image processing and ``Pytorch`` for training model on customed printed digits dataset.
+- Sudoku solver app using ``OpenCV`` for image processing and ``Pytorch`` for training model on custom printed digits dataset.
 
 - `Finished time:` 12/01/2023.
 
@@ -12,7 +12,7 @@
  
    +) There are some samples which have wrong labels (noise), the model for sudoku digits classifier is need to be as accurate as possible.
  
-   +) There are some mistakes recognizing digits (especially 0 and 1, 3 and 8) when using MNIST dataset.
+   +) There are some mistakes recognizing digits (especially 0, 1 and 7, 3 and 8) when using MNIST dataset.
   
  - In this repo, we create a custom printed digit dataset by drawing digits with various popular font styles (Times New Roman, Tahoma, Arial, Hevectica ...) which are shown in ``font`` folder.
  
@@ -95,9 +95,9 @@ Inverse Perspective Transform       |  Final result
 ## Note
   Change the url variable to your image url.
   
-- Test sudoku solver by image on local, run ``image_solver.py``.
+- Test sudoku solver by image locally, run ``image_solver.py``.
 
-- Test real-time solver on local, run ``realtime_solver.py``.
+- Test real-time solver locally, run ``realtime_solver.py``.
 
 - Test the entire image processing pipeline, run ``test_modules.py``.
 
@@ -168,12 +168,54 @@ Uploaded image           |  Result image
 
 Rules          |  How to play
 :-------------------------:|:-------------------------:
-![](https://github.com/LTPhat/Sudoku_Solver/blob/main/display_images/about_sudoku_page/rules.jpg)  |![]![](https://github.com/LTPhat/Sudoku_Solver/blob/main/display_images/about_sudoku_page/another_sudoku.jpg)
+![](https://github.com/LTPhat/Sudoku_Solver/blob/main/display_images/about_sudoku_page/rules.jpg)  |![](https://github.com/LTPhat/Sudoku_Solver/blob/main/display_images/about_sudoku_page/another_sudoku.jpg)
 
 
 ### About me page
 
 - Just some personal information.
+
+
+## Comments
+
+### Pros
+
+- Good performence of recognizing digits task.
+
+- Acceptable response time for most of input images upload to the App.
+
+- Simple dataset and don't need much data to get high accuracy.
+
+- Clear overall structure and pipeline, there are test modules for testing and debugging.
+
+- Recognize and solve correctly most of input images with large shape, high resolution and taken form bird's eye view.
+
+- Perspective transformation works effectively with an acceptable proportion of the input images.
+
+- There are exception processes when receiving invalid input from user and when there is something wrong with recognize digit task or solve Sudoku task. 
+
+
+### Cons
+
+- Real-time solver is not really effective in some cases.
+
+- Face problems setting threshold value to clean noises of each squares, sometimes cleaning noise also cleans the digit contained in that square.
+
+- It takes long time to solve hard level Sudoku board (>10s).
+
+- Wrongly recognize and solve small shape, unclean and blurred images or images with too inclined perspective toward Sudoku board.
+
+
+### Development orientation
+
+- Get more robust model for digits recognizing task.
+
+- Apply Denoising Autoencoders for cleaning noise task to handle the problem of setting threshold value.
+
+- Improve real-time solver function.
+
+- Get better web app interface design.
+
 
 ## References
 
