@@ -2,8 +2,6 @@
 
 - Sudoku solver app using ``OpenCV`` for image processing and ``Pytorch`` for training model on customed printed digits dataset.
 
-- Final project for ``CourseWork 2`` in AI4E course.
-
 - `Finished time:` 12/01/2023.
 
 ## About the dataset and model
