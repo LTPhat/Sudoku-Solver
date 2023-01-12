@@ -8,12 +8,14 @@ import cv2
 from sudoku_solve import Sudoku_solver
 from PIL import Image
 from helper_number_page import valid_board
+
+
 classifier = torch.load('digit_classifier.h5',map_location ='cpu')
 classifier.eval()
 
 
 frameWidth = 960
-frameHeight = 960
+frameHeight = 720
 
 cap = cv2.VideoCapture(0)
 frame_rate = 60
@@ -23,7 +25,7 @@ cap.set(3, frameWidth)
 cap.set(4, frameHeight)
 
 # change brightness 
-cap.set(10, 100)
+cap.set(10, 150)
 prev = 0
 
 while cap.isOpened():
@@ -72,11 +74,15 @@ while cap.isOpened():
             start_time = time.time()
             sudoku.solve()
             solved_board = sudoku.board
+            
             # Unwarp
             _, warp_with_nums = draw_digits_on_warped(warped, solved_board, unsolved_board)
-
             final_img = unwarp_image(warp_with_nums, corners_img, corners_list, time.time() - start_time)       
-    cv2.imshow("Result", final_img)
+            cv2.imshow("Result", final_img)
+            if valid_board(solved_board):
+                cv2.waitKey(1000)
+        else:
+            cv2.imshow("Result", final_img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 cv2.destroyAllWindows()

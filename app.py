@@ -59,16 +59,19 @@ def solve_by_image(upload_img, model):
 def get_column(board, index):
     return np.array([row[index] for row in board])
 
+
 def valid_row_or_col(array):
     if np.all(array == 0) == True:
         return True
     return len(set(array[array!=0])) == len(list(array[array!=0]))
+
 
 def valid_single_box(board, box_x, box_y):
     box = board[box_x*3 : box_x*3 + 3, box_y*3: box_y*3+3]
     if len(list(box[box!=0])) == 0:
         return True
     return len(set(box[box!=0])) == len(list(box[box!=0]))
+
 
 def valid_input_str(input_str):
     board = convert_str_to_board(input_str)
@@ -86,6 +89,18 @@ def valid_input_str(input_str):
             if valid_single_box(board, i, j) == False:
                 return False
     return True
+
+
+def valid_board(board):
+    """
+    Check result board can't has 0 digits
+    """
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == 0:
+                return False
+    return True
+
 
 ## DRAW INPUT AND RESULT 
 def draw_gridline(target_shape = (600,600,3)):
@@ -345,7 +360,7 @@ def image_solve_page(model):
         if can_solve(solved_board):
             st.image(res_img, caption="Result", clamp=True, channels='BGR')
         else:
-            st.warning("There is something went wrong! Please choose another larger and clearer image.")
+            st.warning("There is something went wrong! Please choose another image or switch to SOLVE BY NUMBER INPUTS page to get more accurate result.")
             st.image(res_img, caption="Result", clamp=True, channels='BGR')
 
 def real_time_page(model):
@@ -630,13 +645,15 @@ def number_solve_page():
             in_image, board = draw_user_image(base_img, input_str)
             st.image(in_image, caption = "Input puzzle")
             res_board, unsolve_board = solve(board)
-            res_img = draw_result(base_img, unsolve_board, res_board)
-            show_image_output = """
-            <h5 style="color:black; font-family: cursive">Your result puzzle: </h5>
-            """
-            st.markdown(show_image_output, unsafe_allow_html= True)
-            st.image(res_img, caption= "Result puzzle", clamp=True, channels='BGR')
-
+            if valid_board(res_board):
+                res_img = draw_result(base_img, unsolve_board, res_board)
+                show_image_output = """
+                <h5 style="color:black; font-family: cursive">Your result puzzle: </h5>
+                """
+                st.markdown(show_image_output, unsafe_allow_html= True)
+                st.image(res_img, caption= "Result puzzle", clamp=True, channels='BGR')
+            else:
+                st.error("The puzzle can't be solved. Please check again.")
 def about_me_page():
     header_aboutme = """
         <div style="
