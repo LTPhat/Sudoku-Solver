@@ -10,11 +10,11 @@ from PIL import Image
 from image_solver import image_solver
 from sudoku_solve import Sudoku_solver
 import time
+import random
 # Define model
 
 classifier = torch.load('digit_model.h5',map_location ='cpu')
 classifier.eval()
-
 
 # RTC_CONFIGURATION = RTCConfiguration({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
 # webrtc_streamer(
@@ -24,6 +24,13 @@ classifier.eval()
 #     }
 #     # ...
 # )
+
+# font style for displaying images
+
+font_style = [cv2.FONT_HERSHEY_SIMPLEX, 
+    cv2.FONT_HERSHEY_DUPLEX, cv2.FONT_HERSHEY_COMPLEX, cv2.FONT_HERSHEY_TRIPLEX,
+    cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_ITALIC]
+
 # Decode image
 def get_base64(bin_file):
     with open(bin_file, 'rb') as f:
@@ -121,6 +128,7 @@ def draw_user_image(base_img, input_str):
     """
     Create sudoku quiz image from user input
     """
+    font = random.choice(font_style)
     width = base_img.shape[0] // 9
     board = convert_str_to_board(input_str)
     for j in range(9):
@@ -132,12 +140,12 @@ def draw_user_image(base_img, input_str):
 
                 # Find the center of square to draw digit
                 center = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
-                text_size, _ = cv2.getTextSize(str(board[j][i]), cv2.FONT_HERSHEY_SIMPLEX, 1, 6)
+                text_size, _ = cv2.getTextSize(str(board[j][i]), font, 1, 6)
                 text_origin = (center[0] - text_size[0] // 2, center[1] + text_size[1] // 2)
 
                 cv2.putText(base_img, str(board[j][i]),
-                            text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 6)
-    return base_img, board
+                            text_origin, font, 1.5, (0, 0, 0), 6)
+    return base_img, board, font
 
 def solve(board):
     unsolved_board = board.copy()
@@ -146,7 +154,7 @@ def solve(board):
     res_board = sudoku.board
     return res_board, unsolved_board
 
-def draw_result(base_img, unsolved_board, solved_board):
+def draw_result(base_img, unsolved_board, solved_board, font):
     width = base_img.shape[0] // 9
     for j in range(9):
         for i in range(9):  
@@ -155,14 +163,14 @@ def draw_result(base_img, unsolved_board, solved_board):
 
             # Find the center of square to draw digit
             center = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
-            text_size, _ = cv2.getTextSize(str(solved_board[j][i]), cv2.FONT_HERSHEY_SIMPLEX, 1, 6)
+            text_size, _ = cv2.getTextSize(str(solved_board[j][i]), font , 1, 6)
             text_origin = (center[0] - text_size[0] // 2, center[1] + text_size[1] // 2)
             if unsolved_board[j][i] != solved_board[j][i]:
                 cv2.putText(base_img, str(solved_board[j][i]),
-                        text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 6)
+                        text_origin, font, 1.5, (0, 0, 255), 6)
             else:
                 cv2.putText(base_img, str(solved_board[j][i]),
-                        text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 6)
+                        text_origin, font, 1.5, (0, 0, 0), 6)
     return base_img
 
 def can_solve(board):
@@ -633,7 +641,7 @@ def number_solve_page():
             <h5 style="color:black; font-family: cursive">Your sudoku puzzle:</h5>
             """
             st.markdown(show_image_input, unsafe_allow_html= True)
-            in_image, board = draw_user_image(base_img, input_str)
+            in_image, board, font = draw_user_image(base_img, input_str)
             st.image(in_image, caption = "Input puzzle")
             st.error("Invalid puzzle (repetition on row, column or box). Please check again.")
         else:
@@ -642,11 +650,11 @@ def number_solve_page():
             <h5 style="color:black; font-family: cursive">Your sudoku puzzle:</h5>
             """
             st.markdown(show_image_input, unsafe_allow_html= True)
-            in_image, board = draw_user_image(base_img, input_str)
+            in_image, board, font = draw_user_image(base_img, input_str)
             st.image(in_image, caption = "Input puzzle")
             res_board, unsolve_board = solve(board)
             if valid_board(res_board):
-                res_img = draw_result(base_img, unsolve_board, res_board)
+                res_img = draw_result(base_img, unsolve_board, res_board, font)
                 show_image_output = """
                 <h5 style="color:black; font-family: cursive">Your result puzzle: </h5>
                 """
